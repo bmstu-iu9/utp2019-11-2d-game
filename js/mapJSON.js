@@ -26,10 +26,9 @@ let mapManager = {
 
     //прогрузка карты
     //-----------------------------------------------------------------------------------------------------------------------
-    loadMap: (path) =>{//функция для загрузки карты в программу
-        this.tilesets = new Array();
+    loadMap(path){//функция для загрузки карты в программу
+        //this.tilesets = new Array();
         let request = new XMLHttpRequest(); //создаем объект ajax запроса
-
         request.onreadystatechange = () =>{ //будет автоматически вызвана после отправки запроса (вне зависимости от результата)
             if (request.readyState === 4 && request.status === 200){ //информация о готовности ответа && код ответа
                 //получен корректный ответ, результат можно обработать
@@ -43,7 +42,7 @@ let mapManager = {
         request.send();//отправляет запрос
     },
 
-    parseMap: (tilesJSON) =>{
+    parseMap(tilesJSON){
         this.mapData = JSON.parse(tilesJSON); //разобрать JSON
         //console.log(this.mapData.tilewidth);
         this.xCount = this.mapData.width; //сохранение ширины
@@ -61,7 +60,7 @@ let mapManager = {
             let img = new Image(); //создаем переменную для хранения изображения
             img.onload = () => { //запуститься при загрузке изображения
                 mapManager.imgLoadCount++; //увеличиваем счетчик
-                mapManager.imgLoaded = (mapManager.imgLoadCount === this.mapData.tilesets.length) ? true : false;
+                mapManager.imgLoaded = (mapManager.imgLoadCount === this.mapData.tilesets.length);
             };//конец описания функции onload
             let t = this.mapData.tilesets[i]; //забираем tileset из карты
             img.src = "maps/" + t.image; //задание пути к изображению
@@ -72,9 +71,11 @@ let mapManager = {
                 xCount: Math.floor(t.imagewidth / this.tSize.x), //горизонталь в блоках
                 yCount: Math.floor(t.imageheight / this.tSize.y) //вертикаль в блоках
             }; //конц объявления объекта ts
+            //console.log(ts);
+            //console.log(this.tilesets);
             this.tilesets.push(ts);
         }//окончание цикла for
-        mapManager.jsonLoaded = true; //true, разобрали весь json
+        this.jsonLoaded = true; //true, разобрали весь json
         //console.log(mapManager.imgLoaded, mapManager.jsonLoaded);
         //console.log(1);
     },
@@ -82,30 +83,30 @@ let mapManager = {
 
     //прорисовка карты
     //-----------------------------------------------------------------------------------------------------------------------
-    draw: (ctx) =>{//нарисовать карту в ctx
+    draw(ctx){//нарисовать карту в ctx
         //если карта не загружена, то повторить прорисовку через 100 мск
         if (!mapManager.imgLoaded || !mapManager.jsonLoaded){
             //console.log(mapManager.imgLoaded, mapManager.jsonLoaded);
             setTimeout(() =>{mapManager.draw(ctx);}, 100);
         } else {
-            if (mapManager.tLayer.length === 0){//проверяем что tLayer настроен
+            if (this.tLayer.length === 0){//проверяем что tLayer настроен
                 for (let id = 0; id < this.mapData.layers.length; id++){ //проходим по всем layer карты
                     let layer = this.mapData.layers[id];
-                    console.log(layer.type);
+                    //console.log(layer.type);
                     if (layer.type === "tilelayer"){ //если не tilelayer пропускаем
-                        console.log(layer);
-                        mapManager.tLayer.push(layer);
-                       // break;
+                        //console.log(layer);
+                        this.tLayer.push(layer);
+                        // break;
                     }
                 }//окончание цикла for
             }
-            console.log(mapManager.tLayer);
-            for (let id = 0; id < mapManager.tLayer.length; id++) {
-                for (let i = 0; i < mapManager.tLayer[id].data.length; i++) {//пройти по всей карте
-                    let a = mapManager.tLayer[id].data[i];
+            //console.log(mapManager.tLayer);
+            for (let id = 0; id < this.tLayer.length; id++) {
+                for (let i = 0; i < this.tLayer[id].data.length; i++) {//пройти по всей карте
+                    let a = this.tLayer[id].data[i];
                     if (a !== 0) { //если нет данных пропускаем
-                        console.log(a);
-                        let tile = mapManager.getTile(a);//получение блока по индексу
+                        //console.log(a);
+                        let tile = this.getTile(a);//получение блока по индексу
                         //i-проходит линейно по массиву, xCount-длина по x
                         let pX = (i % this.xCount) * this.tSize.x; //вычисляем x в пикселях
                         let pY = Math.floor(i / this.xCount) * this.tSize.y; //вычисяем y в пикселях
@@ -118,13 +119,13 @@ let mapManager = {
         }
     },
 
-    getTile: (tileIndex) =>{//индекс блока
+    getTile(tileIndex){//индекс блока
         let tile = {//один блок
             img: null, //изображение tileset
             px: 0, py: 0 //координаты блока в tileset
         };
-        let tileset = mapManager.getTileset(tileIndex);
-        console.log(tileset);
+        let tileset = this.getTileset(tileIndex);
+        //console.log(tileset);
         tile.img = tileset.image;//изображение искомого tileset
         let id = tileIndex - tileset.firstId;//индекс блока в tileset
         //блок прямоугольный, остаток от деления на xCount дает x в tileset
@@ -137,11 +138,11 @@ let mapManager = {
         return tile;//возращаем блок для отображения
     },
 
-    getTileset: (tileIndex) =>{ //получение блока по индексу
-        console.log(this.tilesets);
+    getTileset(tileIndex){ //получение блока по индексу
+        //console.log(this.tilesets);
         for (let i = this.tilesets.length - 1; i >= 0; i--){
             //в каждом tilesets[i].firstId записанно число с которого начинается нумерация блоков
-            console.log(this.tilesets[i]);
+            //console.log(this.tilesets[i]);
             if (this.tilesets[i].firstId <= tileIndex){//если индекс первого блока меньше или равен искомому значит этот tileset и нужен
                 return this.tilesets[i];
             }
