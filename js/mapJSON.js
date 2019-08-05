@@ -6,7 +6,7 @@ let ctx = canvas.getContext("2d"); //подключаем 2d графику
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
-
+//console.log(canvas);
 
 //описание объекта для управления картой
 let mapManager = {
@@ -21,6 +21,7 @@ let mapManager = {
     imgLoadCount: 0, //кол-во загруженных изображений
     imgLoaded: false, //загруженны ли все изображения
     jsonLoaded: false, //разобран ли весь json
+    veiw: {x: 0, y: 0, width: canvas.width, height: canvas.height},
 
     //методы объекта
 
@@ -111,6 +112,12 @@ let mapManager = {
                         let pX = (i % this.xCount) * this.tSize.x; //вычисляем x в пикселях
                         let pY = Math.floor(i / this.xCount) * this.tSize.y; //вычисяем y в пикселях
                         //рисуем в контексте
+                        if (!this.isVisible(pX, pY, this.tSize.x, this.tSize.y)){//проверка на то что находится ли блок в видимой зоне или нет
+                            continue;
+                        }
+                        //сдвигаем видимую зону
+                        pX -= this.veiw.x;
+                        pY -= this.veiw.y;
                         ctx.drawImage(tile.img, tile.px, tile.py, this.tSize.x, this.tSize.y, pX, pY, this.tSize.x, this
                             .tSize.y);
                     }
@@ -148,6 +155,11 @@ let mapManager = {
             }
         }
         return null; //возращаем найденный tileset
+    },
+
+    isVisible(x, y, width, height){//проверка видимости блока
+        return !(x + width < this.veiw.x || y + height < this.veiw.y ||
+                x > this.veiw.x + this.veiw.width || y > this.veiw.y + this.veiw.height);
     }
     //-----------------------------------------------------------------------------------------------------------------------
 };
