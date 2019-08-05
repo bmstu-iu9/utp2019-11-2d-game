@@ -17,7 +17,7 @@ let mapManager = {
     yCount: 0, //кол-во блоков по вертикали
     tSize: null, //размер блока
     mapSize: null, //размер карты в пикселях(вычисляется)
-    tilesets: null, //массив описаний блоков карты
+    tilesets: [], //массив описаний блоков карты
     imgLoadCount: 0, //кол-во загруженных изображений
     imgLoaded: false, //загруженны ли все изображения
     jsonLoaded: false, //разобран ли весь json
