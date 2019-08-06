@@ -1,9 +1,5 @@
 'use strict'
 
-let canvas = document.getElementById("canvasid"); //берем управление над canvas
-let ctx = canvas.getContext("2d"); //подключаем 2d графику
-
-
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 //console.log(canvas);
@@ -160,6 +156,43 @@ let mapManager = {
     isVisible(x, y, width, height){//проверка видимости блока
         return !(x + width < this.veiw.x || y + height < this.veiw.y ||
                 x > this.veiw.x + this.veiw.width || y > this.veiw.y + this.veiw.height);
+    },
+
+    parseEntities(){ //разбор слоя типа objectgroup
+        if (!mapManager.imgLoaded || !mapManager.jsonLoaded){
+            setTimeout(() => {mapManager.parseEntities();}, 100);
+        } else {
+            for (let j = 0; j < this.mapData.layers.length; j++){ //просмотр всех слоев
+                if (this.mapData.layers[j].type === 'objectgroup'){
+                    let entities = this.mapData.layers[j];
+                    //слой с объектами следует разобрать
+                    for (let i = 0; i < entities.objects.length; i++){
+                        let e = entities.objects[i];
+                        try {
+                            let obj = Object.create(gameManager.factory[e.type]);
+                            //в соответствии с типом создаем экземпляр объекта
+                            obj.name = e.name;
+                            obj.pos_x = e.x;
+                            obj.size_x = e.width;
+                            obj.size_y = e.height;
+                            //помещаем в массив объектов
+                            gameManager.entities.push(obj);
+                            if (obj.name === "player") {
+                                //инициализируем параметры игрока
+                                gameManager.initPlayer(obj);
+                            }
+                        }catch(ex){
+                            console.log("Error while creating: [" + e.gid + "]" + e.type + "," + ex); //сообщение об ошибке
+                        }
+                    }
+                }
+            }
+        }
+    },
+
+    getTilesetIdx(x, y){//вычисляет индекс блока в массиве data
+        let idx = Math.floor(y / this.tSize.y) * this.xCount + Math.floor(x / this.tSize.x);
+        return this.tLayer.data[idx];
     }
     //-----------------------------------------------------------------------------------------------------------------------
 };
@@ -170,7 +203,7 @@ let eventsManager = {
     bind: [], //сопостовления клавиш действиям
     action: [], //действия
 
-    //события
+    //методы
     setup(){ //настройка клавиш и прявизки
         //настройка привязки к действию
         this.bind['KeyW'] = "up"; //w
@@ -201,6 +234,51 @@ let eventsManager = {
         }
     }
 
+};
+
+//менеджер физики объектов
+let physicManager = {
+
+    //методы
+    update(obj){//обновление состояния объекта
+        if(obj.move_x === 0 && obj.move_y === 0)
+            return 'stop'; //скорость движения нулевая
+
+        //вычисение новых координат
+        let newX = obj.pos_x + Math.floor(obj.move_x * obj.speed);
+        let newY = obj.pos_y + Math.floor(obj.move_y * obj.speed);
+
+        //анализ пространства на карте по направлению движения
+        let ts = mapManager.getTilesetIdx(newX + obj.size_x / 2, newY + obj.size_y / 2);
+        let e = this.entityAtXY(obj, newX, newY); //объект на пути
+        if (e !== null && obj.onTouchEntity) //если есть конфликт (onTouchEnity - функция встречи с другим объектом)
+            obj.onTouchEntity(e); //разбор конфликта внутри объекта
+        if (ts !== 7 && obj.onTouchMap) //есть припятствие (onTou
+            obj.onTouchMap(ts); //разбор конфликта с припятствием внутри объекта
+
+        if (ts === 7 && e === null){ //перемещаем объект на свободное место
+            obj.pos_x = newX;
+            obj.pos_y = newY;
+        } else {
+            return "break"; //дальше двигаться нельзя
+        }
+        return "move"; //двигаемся
+    },
+
+    entittyAtXY(obj, x, y){//определение столкновения объекта по заданным координатам
+        for (let i = 0; i < gameManager.entities.length; i++){
+            let e = gameManager.entities[i]; //все объекты карты
+            if (e.name !== obj.name){ //имя не совпадает (имена уникальны)
+                if (x + obj.size_x < e.pos_x || //не пересекаются
+                    y + obj.size_y < e.pos_y ||
+                    x > e.pos_x + e.size_x ||
+                    y > e.pos_y + e.size_y)
+                    continue;
+                return e; //найден объект
+            }
+        }
+        return null; //объект не найден
+    }
 };
 
 eventsManager.setup();
