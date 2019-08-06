@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 let canvas = document.getElementById("canvasid"); //берем управление над canvas
 let ctx = canvas.getContext("2d"); //подключаем 2d графику
@@ -164,5 +164,101 @@ let mapManager = {
     //-----------------------------------------------------------------------------------------------------------------------
 };
 
+let Player = {
+    pos_x: 0, pos_y: 0, // позиция игрока
+    size_x: 37, size_y: 50, // размеры игрока
+    lifetime: 100, // показатели здоровья
+    move_x: 0, move_y: 0, // направление движения
+    speed: 0, // скорость объекта
+
+    createPlayer() {
+        return Object.create(this);
+    },
+
+    draw(ctx) { // прорисовка игрока
+        spriteManager.drawSprite(ctx, "adventurer-idle-2-00", this.pos_x, this.pos_y)
+    },
+/*
+    update() { // обновление в цикле
+
+    },
+
+    onTouchEntity(obj) { // обработка встречи с препядствием
+
+    },
+
+    kill() { // уничтожение объекта
+
+    }
+
+ */
+};
+
+let spriteManager = { // объект для управления спрайтами
+    image: new Image(), // рисунок с объектами
+    sprites: [], // массив объктов для отображения
+    imgLoaded: false, // изображения загружены
+    jsonLoaded: false, // JSON загружен
+
+    loadAtlas(atlasJson, atlasIMG) { // загрузка атласа изображения
+        let request = new XMLHttpRequest(); // подготовить запрос на разбор атласа
+        request.onreadystatechange = function () {
+            if (request.readyState === 4 && request.status === 200) {
+                spriteManager.parseAtlas(request.responseText) // успешно получили атлас
+            }
+        };
+        request.open("GET", atlasJson, true); // асинхронный запрос на разбор атласа
+        request.send(); // отправили запрос
+        this.loadImg(atlasIMG); // загрузка изображения
+    },
+
+    loadImg(imgName) { // загрузка изображения
+        this.image.onload = function () {
+            spriteManager.imgLoaded = true ;// когда изображение загружено, установить в true
+        };
+        this.image.src = imgName; // загрузка изображения
+    },
+
+    parseAtlas(atlasJSON) { // разобрать атлас с объектами
+        let atlas = JSON.parse(atlasJSON);
+        for (let name in atlas.frames) { // проход по всем именам в frames
+            let frame = atlas.frames[name].frame; // получение спрайта и сохранение в frame
+            // сохранение характеристик frame в виде объекта
+            this.sprites.push({name: name, x: frame.x, y: frame.y, w: frame.w, h: frame.h});
+        }
+        this.jsonLoaded = true; // true, когда разобрали весь атлас
+    },
+
+    drawSprite(ctx, name, x, y) {
+        if (!this.imgLoaded || !this.jsonLoaded) {
+            // если изображение не загружено, то повторить запрос через 100 мсек
+            setTimeout(function () { spriteManager.drawSprite(ctx, name, x, y);}, 100)
+        } else {
+            let sprite = this.getSprite(name); // получить спрайт по имени
+            if (!mapManager.isVisible(x, y, sprite.w, sprite.h))
+                return; // не рисуем за пределом видимой зоны
+            // отображаем спрайт на холсте
+            ctx.drawImage(this.image, sprite.x, sprite.y, sprite.w, sprite.h, x, y, sprite.w, sprite.h)
+        }
+    },
+
+    getSprite(name) { // получить объект по имени
+        for (let i = 0; i < this.sprites.length; i++) {
+            let s = this.sprites[i];
+            if (s.name === name)
+                return s;
+        }
+        return null;
+    }
+};
+
 mapManager.loadMap("maps/tilemap.json");
+spriteManager.loadAtlas("maps/sprites.json", "maps/spritesheet.png");
 mapManager.draw(ctx);
+
+let Player_1 = Player.createPlayer(100);
+//let Player_2 = Player.createPlayer(100);
+
+Player_1.pos_x = 50;
+Player_1.pos_y = 60;
+Player_1.draw(ctx);
