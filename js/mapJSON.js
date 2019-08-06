@@ -164,5 +164,45 @@ let mapManager = {
     //-----------------------------------------------------------------------------------------------------------------------
 };
 
+//менеджер событий
+let eventsManager = {
+    //свойства
+    bind: [], //сопостовления клавиш действиям
+    action: [], //действия
+
+    //события
+    setup(){ //настройка клавиш и прявизки
+        //настройка привязки к действию
+        this.bind['KeyW'] = "up"; //w
+        this.bind['KeyA'] = "left"; //a
+        this.bind['KeyS'] = "down"; //s
+        this.bind['KeyD'] = "right"; //d
+
+        //настраиваем обработчик
+        document.body.addEventListener("keydown", this.keyDown);
+        document.body.addEventListener("keyup", this.keyUp);
+    },
+
+    keyDown(event){ //нажатие клавиши
+        let action = eventsManager.bind[event.code]; //получаем действие по коду клавиши
+        //console.log(event.code);
+        if (action){
+            eventsManager.action[action] = true; //согласились выполнить действие
+            //console.log(action);
+        }
+    },
+
+    keyUp(event){ //отпустили клавишу
+        let action = eventsManager.bind[event.code]; //получаем действие по коду клавиши
+
+        if (action){
+            eventsManager.action[action] = false; //согласились выполнить действие
+            //console.log(action);
+        }
+    }
+
+};
+
+eventsManager.setup();
 mapManager.loadMap("maps/tilemap.json");
 mapManager.draw(ctx);
