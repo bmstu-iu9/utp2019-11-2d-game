@@ -201,11 +201,11 @@ let mapManager = {
 };
 
 let Player = {
-    pos_x: 0, pos_y: 0, // позиция игрока
+    pos_x: 50, pos_y: 60, // позиция игрока
     size_x: 37, size_y: 50, // размеры игрока
     lifetime: 100, // показатели здоровья
     move_x: 0, move_y: 0, // направление движения
-    speed: 0, // скорость объекта
+    speed: 10, // скорость объекта
 
     createPlayer() {
         return Object.create(this);
@@ -214,11 +214,11 @@ let Player = {
     draw(ctx) { // прорисовка игрока
         spriteManager.drawSprite(ctx, "adventurer-idle-2-00", this.pos_x, this.pos_y)
     },
-/*
+
     update() { // обновление в цикле
-
+        physicManager.update(this);
     },
-
+/*
     onTouchEntity(obj) { // обработка встречи с препядствием
 
     },
@@ -340,6 +340,7 @@ let physicManager = {
         let newY = obj.pos_y + Math.floor(obj.move_y * obj.speed);
 
         //анализ пространства на карте по направлению движения
+        /*
         let ts = mapManager.getTilesetIdx(newX + obj.size_x / 2, newY + obj.size_y / 2);
         let e = this.entityAtXY(obj, newX, newY); //объект на пути
         if (e !== null && obj.onTouchEntity) //если есть конфликт (onTouchEnity - функция встречи с другим объектом)
@@ -353,6 +354,9 @@ let physicManager = {
         } else {
             return "break"; //дальше двигаться нельзя
         }
+        */
+        obj.pos_x = newX;
+        obj.pos_y = newY;
         return "move"; //двигаемся
     },
 
@@ -372,6 +376,83 @@ let physicManager = {
     }
 };
 
+//менеджер игры
+let gameManager = {
+    factory: {}, //фабрика объектов на карте
+    entities: [], //объекты на карте
+    player: null, //указатель на объект игрока
+    laterKill: [], //отложенное уничтожение объектов
+    initPlayer(obj){ //инициализация игрока
+        this.player = obj;
+    },
+    kill(obj){
+        this.laterKill.push(obj);
+    },
+    draw(ctx){
+        for (let e = 0; e < this.entities.length; e++){
+            this.entities[e].draw(ctx);
+        }
+    },
+    update(){//обновление информации
+        //console.log(this.player);
+        if (this.player === null){
+            return;
+        }
+        //по умолчанию игрок никуда не двигается
+        this.player.move_x = 0;
+        this.player.move_y = 0;
+
+        //поймали событие обрабатываем
+        if (eventsManager.action['up']) this.player.move_y = -1;
+        if (eventsManager.action['down']) this.player.move_y = 1;
+        if (eventsManager.action['left']) this.player.move_x = -1;
+        if (eventsManager.action['right']) this.player.move_x = 1;
+
+        //обновление информации по всем объектам на карте
+        this.entities.forEach((e) => {
+            //console.log(e);
+            //try{ //защита от ошибок при выполнении update
+                e.update();
+           // } catch (ex) {
+              //  console.log(-1);
+            //}
+        });
+
+        //удаление всех объектов, попавших в laterKill
+        for (let i = 0; i < this.laterKill.length; i++){
+            let idx = this.entities.indexOf(this.laterKill[i]);
+            if (idx > -1)
+                this.entities.splice(idx, 1); //удаление из массива 1 объекта
+        };
+
+        if (this.laterKill.length > 0) //очистка массива laterKill
+            this.laterKill.length = 0;
+        mapManager.draw(ctx);
+        this.draw(ctx);
+    },
+
+    loadAll(){
+        mapManager.loadMap("maps/tilemap.json");
+        spriteManager.loadAtlas("maps/sprites.json", "maps/spritesheet.png");
+        gameManager.factory['Player'] = Player;
+        gameManager.entities.push(gameManager.factory['Player']);
+        //mapManager.parseEntities();
+        eventsManager.setup();
+    },
+
+    play(){
+        setInterval(updateWorld, 100);
+    }
+};
+
+const updateWorld = () => {
+    gameManager.update();
+};
+
+gameManager.loadAll();
+gameManager.initPlayer(Player);
+gameManager.play();
+/*
 //eventsManager.setup();
 mapManager.loadMap("maps/tilemap.json");
 spriteManager.loadAtlas("maps/sprites.json", "maps/spritesheet.png");
@@ -383,3 +464,4 @@ let Player_1 = Player.createPlayer(100);
 Player_1.pos_x = 50;
 Player_1.pos_y = 60;
 Player_1.draw(ctx);
+*/
