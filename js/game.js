@@ -17,7 +17,7 @@ needle.src = "img/needle.png";
 wedge.src = "img/wedge.png";
 center.src = "img/center.png";
 
-var rotationAngle = Math.PI/10;
+var rotationAngle = Math.PI/50;
 
 document.addEventListener("keydown", move);
 
@@ -30,7 +30,7 @@ function move(e) {
             ctx.save();
             ctx.translate(wX + shipWidth/2,wY+shipHeight/2);
             ctx.rotate(wA-rotationAngle);
-            wA-=rotationAngle;
+            wA -= rotationAngle;
             ctx.translate(- wX - shipWidth/2,-wY-shipHeight/2);
             ctx.drawImage(wedge, wX,wY);
             ctx.restore();
@@ -48,7 +48,7 @@ function move(e) {
             ctx.save();
             ctx.translate(wX + shipWidth/2,wY + shipHeight/2);
             ctx.rotate(wA+rotationAngle);
-            wA+=rotationAngle;
+            wA += rotationAngle;
             ctx.translate(- wX - shipWidth/2,-wY-shipHeight/2);
             ctx.drawImage(wedge, wX, wY);
             ctx.restore();
@@ -71,7 +71,7 @@ function move(e) {
             ctx.save();
             ctx.translate(nX + shipWidth/2, nY + shipHeight/2);
             ctx.rotate(nA - rotationAngle);
-            nA-=rotationAngle;
+            nA -= rotationAngle;
             ctx.translate(-nX - shipWidth/2, -nY - shipHeight/2);
             ctx.drawImage(needle, nX, nY);
             ctx.restore();
@@ -89,7 +89,7 @@ function move(e) {
             ctx.save();
             ctx.translate(nX + shipWidth/2, nY + shipHeight/2);
             ctx.rotate(nA + rotationAngle);
-            nA+=rotationAngle;
+            nA += rotationAngle;
             ctx.translate(-nX - shipWidth/2, -nY - shipHeight/2);
             ctx.drawImage(needle, nX, nY);
             ctx.restore();
@@ -116,8 +116,14 @@ var cX = canvasSize/2 - centerHeight/2, cY = canvasSize/2 - centerWidth/2;
 //var gravity = 0.5;
 function draw() {
   ctx.drawImage(bg, 0, 0);
+  ctx.save();
+  ctx.translate(wX + shipWidth/2,wY+shipHeight/2);
+  ctx.rotate(Math.PI);
+  wA = Math.PI;
+  ctx.translate(- wX - shipWidth/2,-wY-shipHeight/2);
+  ctx.drawImage(wedge, wX,wY);
+  ctx.restore();
   ctx.drawImage(needle, nX, nY);
-  ctx.drawImage(wedge, wX, wY);
   ctx.drawImage(center, cX,cY);
   //nX+=gravity;
   //nY+=gravity;
