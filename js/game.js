@@ -26,7 +26,12 @@ function move(e) {
             ctx.translate(-22,-22);
             ctx.drawImage(wedge, wX,wY);
             ctx.restore();
+            ctx.save();
+            ctx.translate(778,778);
+            ctx.rotate(nA);
+            ctx.translate(-778,-778);
             ctx.drawImage(needle, nX, nY);
+            ctx.restore();
             ctx.drawImage(center, cX,cY);
             break;
         case 68: // KeyD - right
@@ -39,7 +44,12 @@ function move(e) {
             ctx.translate(-22,-22);
             ctx.drawImage(wedge, wX,wY);
             ctx.restore();
+            ctx.save();
+            ctx.translate(778,778);
+            ctx.rotate(nA);
+            ctx.translate(-778,-778);
             ctx.drawImage(needle, nX, nY);
+            ctx.restore();
             ctx.drawImage(center, cX,cY);
             break;
         case 87: // KeyW - bang
@@ -57,7 +67,12 @@ function move(e) {
             ctx.translate(-778,-778);
             ctx.drawImage(needle, nX, nY);
             ctx.restore();
-            ctx.drawImage(wedge, wX,wY);
+            ctx.save();
+            ctx.translate(22,22);
+            ctx.rotate(wA);
+            ctx.translate(-22,-22);
+            ctx.drawImage(wedge, wX, wY);
+            ctx.restore();
             ctx.drawImage(center, cX,cY);
             break;
         case 76: // KeyL - right
@@ -70,7 +85,12 @@ function move(e) {
             ctx.translate(-778,-778);
             ctx.drawImage(needle, nX, nY);
             ctx.restore();
-            ctx.drawImage(wedge, wX,wY);
+            ctx.save();
+            ctx.translate(22,22);
+            ctx.rotate(wA);
+            ctx.translate(-22,-22);
+            ctx.drawImage(wedge, wX, wY);
+            ctx.restore();
             ctx.drawImage(center, cX,cY);
             break;
         case 73: // KeyI - bang
