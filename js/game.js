@@ -31,6 +31,7 @@ function move(e) {
             ctx.translate(wX + shipWidth/2,wY+shipHeight/2);
             ctx.rotate(wA-rotationAngle);
             wA -= rotationAngle;
+            while (wA < 0) wA += 2*Math.PI;
             ctx.translate(- wX - shipWidth/2,-wY-shipHeight/2);
             ctx.drawImage(wedge, wX,wY);
             ctx.restore();
@@ -49,6 +50,7 @@ function move(e) {
             ctx.translate(wX + shipWidth/2,wY + shipHeight/2);
             ctx.rotate(wA+rotationAngle);
             wA += rotationAngle;
+            while (wA > 2*Math.PI) wA -= 2*Math.PI;
             ctx.translate(- wX - shipWidth/2,-wY-shipHeight/2);
             ctx.drawImage(wedge, wX, wY);
             ctx.restore();
@@ -72,6 +74,7 @@ function move(e) {
             ctx.translate(nX + shipWidth/2, nY + shipHeight/2);
             ctx.rotate(nA - rotationAngle);
             nA -= rotationAngle;
+            while (nA < 0) nA += 2*Math.PI;
             ctx.translate(-nX - shipWidth/2, -nY - shipHeight/2);
             ctx.drawImage(needle, nX, nY);
             ctx.restore();
@@ -90,6 +93,7 @@ function move(e) {
             ctx.translate(nX + shipWidth/2, nY + shipHeight/2);
             ctx.rotate(nA + rotationAngle);
             nA += rotationAngle;
+            while (nA > 2*Math.PI) nA -= 2*Math.PI;
             ctx.translate(-nX - shipWidth/2, -nY - shipHeight/2);
             ctx.drawImage(needle, nX, nY);
             ctx.restore();
