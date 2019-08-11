@@ -65,8 +65,6 @@ function move(e) {
         case 87: // KeyW - bang
             break;
         case 83: // KeyS - nitro
-            //alert(wA);
-
             if (0 <= wA && wA <= Math.PI) {
               wY += Math.abs(Math.tan(wA)*Math.sqrt(10/(1+Math.tan(wA)*Math.tan(wA))));
             } else {
@@ -138,6 +136,32 @@ function move(e) {
         case 73: // KeyI - bang
             break;
         case 75: // KeyK - nitro
+            if (0 <= nA && nA <= Math.PI) {
+              nY += Math.abs(Math.tan(nA)*Math.sqrt(10/(1+Math.tan(nA)*Math.tan(nA))));
+            } else {
+              nY -= Math.abs(Math.tan(nA)*Math.sqrt(10/(1+Math.tan(nA)*Math.tan(nA))));
+            }
+            if (Math.PI/2 <= nA && nA <= 3*Math.PI/2) {
+              nX -= Math.sqrt(10/(1+Math.tan(nA)*Math.tan(nA)));
+            } else {
+              nX += Math.sqrt(10/(1+Math.tan(nA)*Math.tan(nA)));
+            }
+            ctx.clearRect(0,0,canvasSize,canvasSize);
+            ctx.drawImage(bg, 0, 0);
+            ctx.save();
+            ctx.translate(wX + shipWidth/2,wY + shipHeight/2);
+            ctx.rotate(wA+rotationAngle);
+            //wA+=rotationAngle;
+            ctx.translate(- wX - shipWidth/2,-wY-shipHeight/2);
+            ctx.drawImage(wedge, wX, wY);
+            ctx.restore();
+            ctx.save();
+            ctx.translate(nX + shipWidth/2, nY + shipHeight/2);
+            ctx.rotate(nA);
+            ctx.translate(-nX - shipWidth/2, -nY - shipHeight/2);
+            ctx.drawImage(needle, nX, nY);
+            ctx.restore();
+            ctx.drawImage(center, cX, cY);
             break;
     }
 }
@@ -147,7 +171,7 @@ function move(e) {
 var wX = 10, wY = 10, wA = 0;
 var nX = canvasSize - shipWidth - wX, nY = canvasSize - shipHeight - wY, nA = 0;
 var cX = canvasSize/2 - centerHeight/2, cY = canvasSize/2 - centerWidth/2;
-//var gravity = 0.5;
+
 function draw() {
   ctx.drawImage(bg, 0, 0);
   ctx.save();
@@ -157,11 +181,16 @@ function draw() {
   ctx.translate(- wX - shipWidth/2,-wY-shipHeight/2);
   ctx.drawImage(wedge, wX,wY);
   ctx.restore();
-  ctx.drawImage(needle, nX, nY);
+  ctx.save();
+  ctx.translate(nX + shipWidth/2,nY+shipHeight/2);
+  ctx.rotate(3*Math.PI/2);
+  nA = 3*Math.PI/2;
+  ctx.translate(- nX - shipWidth/2,-nY-shipHeight/2);
+  ctx.drawImage(needle, nX,nY);
+  ctx.restore();
+
   ctx.drawImage(center, cX,cY);
-  //nX+=gravity;
-  //nY+=gravity;
-  //requestAnimationFrame(draw);
+
 }
 
 center.onload = draw;
