@@ -22,6 +22,7 @@ var rotationAngle = Math.PI/50;
 document.addEventListener("keydown", move);
 
 function move(e) {
+
     switch(e.keyCode){
         //wedge
         case 65: // KeyA - left
@@ -30,8 +31,7 @@ function move(e) {
             ctx.save();
             ctx.translate(wX + shipWidth/2,wY+shipHeight/2);
             ctx.rotate(wA-rotationAngle);
-            wA -= rotationAngle;
-            while (wA < 0) wA += 2*Math.PI;
+            wA-=rotationAngle;
             ctx.translate(- wX - shipWidth/2,-wY-shipHeight/2);
             ctx.drawImage(wedge, wX,wY);
             ctx.restore();
@@ -49,8 +49,7 @@ function move(e) {
             ctx.save();
             ctx.translate(wX + shipWidth/2,wY + shipHeight/2);
             ctx.rotate(wA+rotationAngle);
-            wA += rotationAngle;
-            while (wA > 2*Math.PI) wA -= 2*Math.PI;
+            wA+=rotationAngle;
             ctx.translate(- wX - shipWidth/2,-wY-shipHeight/2);
             ctx.drawImage(wedge, wX, wY);
             ctx.restore();
@@ -65,20 +64,14 @@ function move(e) {
         case 87: // KeyW - bang
             break;
         case 83: // KeyS - nitro
-            //alert(wA);
-
-            if (0 <= wA && wA <= Math.PI) {
-              wY += Math.abs(Math.tan(wA)*Math.sqrt(10/(1+Math.tan(wA)*Math.tan(wA))));
+            if (wA <= Math.PI && wA >= 0) {
+                wY -= Math.sqrt(10/(1+Math.tan(wA)*Math.tan(wA)));
+                alert("OYE");
             } else {
-              wY -= Math.abs(Math.tan(wA)*Math.sqrt(10/(1+Math.tan(wA)*Math.tan(wA))));
-            }
-            if (Math.PI/2 <= wA && wA <=3*Math.PI/2) {
-              wX -= Math.sqrt(10/(1+Math.tan(wA)*Math.tan(wA)));
-            } else {
-              wX += Math.sqrt(10/(1+Math.tan(wA)*Math.tan(wA)));
+                wY += Math.sqrt(10/(1+Math.tan(wA)*Math.tan(wA)));
             }
 
-
+            wX -= Math.tan(wA)*Math.sqrt(10/(1+Math.tan(wA)*Math.tan(wA)));
             ctx.clearRect(0,0,canvasSize,canvasSize);
             ctx.drawImage(bg, 0, 0);
             ctx.save();
@@ -103,8 +96,7 @@ function move(e) {
             ctx.save();
             ctx.translate(nX + shipWidth/2, nY + shipHeight/2);
             ctx.rotate(nA - rotationAngle);
-            nA -= rotationAngle;
-            while (nA < 0) nA += 2*Math.PI;
+            nA-=rotationAngle;
             ctx.translate(-nX - shipWidth/2, -nY - shipHeight/2);
             ctx.drawImage(needle, nX, nY);
             ctx.restore();
@@ -122,8 +114,7 @@ function move(e) {
             ctx.save();
             ctx.translate(nX + shipWidth/2, nY + shipHeight/2);
             ctx.rotate(nA + rotationAngle);
-            nA += rotationAngle;
-            while (nA > 2*Math.PI) nA -= 2*Math.PI;
+            nA+=rotationAngle;
             ctx.translate(-nX - shipWidth/2, -nY - shipHeight/2);
             ctx.drawImage(needle, nX, nY);
             ctx.restore();
@@ -144,20 +135,14 @@ function move(e) {
 
 
 
-var wX = 10, wY = 10, wA = 0;
+var wX = 10, wY = 10, wA = Math.PI;
 var nX = canvasSize - shipWidth - wX, nY = canvasSize - shipHeight - wY, nA = 0;
 var cX = canvasSize/2 - centerHeight/2, cY = canvasSize/2 - centerWidth/2;
 //var gravity = 0.5;
 function draw() {
   ctx.drawImage(bg, 0, 0);
-  ctx.save();
-  ctx.translate(wX + shipWidth/2,wY+shipHeight/2);
-  ctx.rotate(Math.PI/2);
-  wA = Math.PI/2;
-  ctx.translate(- wX - shipWidth/2,-wY-shipHeight/2);
-  ctx.drawImage(wedge, wX,wY);
-  ctx.restore();
   ctx.drawImage(needle, nX, nY);
+  ctx.drawImage(wedge, wX, wY);
   ctx.drawImage(center, cX,cY);
   //nX+=gravity;
   //nY+=gravity;
