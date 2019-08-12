@@ -13,8 +13,8 @@ var centerWidth = 25, centerHeight = 25;
 
 //sources
 bg.src = "img/bg.png";
-needle.src = "img/needle.png";
-wedge.src = "img/wedge.png";
+needle.src = "img/needle_neutral.png";
+wedge.src = "img/wedge_neutral.png";
 center.src = "img/center.png";
 
 var rotationAngle = Math.PI/50;
