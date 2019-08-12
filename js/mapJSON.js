@@ -1,7 +1,7 @@
 'use strict';
 
-let canvas = document.getElementById("canvasid");
-let ctx = canvas.getContext("2d");
+let canvas = document.getElementById("canvasid");//находим canvas по id
+let ctx = canvas.getContext("2d"); //включаем 2d графику
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
@@ -9,26 +9,28 @@ canvas.height = window.innerHeight;
 
 //описание объекта для управления картой
 let mapManager = {
+
     //свойства объекта
     mapData: null, //переменная для хранения карты
     tLayer: [], //переменная для хранения ссылки на блоки карты
     xCount: 0, //кол-во блоков по горизонтали
     yCount: 0, //кол-во блоков по вертикали
-    tSize: null, //размер блока
-    mapSize: null, //размер карты в пикселях(вычисляется)
+    tSize: {x: 0, y: 0}, //размер блока (x, y)
+    mapSize: {x: 0, y: 0}, //размер карты в пикселях(вычисляется) (x, y)
     tilesets: [], //массив описаний блоков карты
     imgLoadCount: 0, //кол-во загруженных изображений
     imgLoaded: false, //загруженны ли все изображения
     jsonLoaded: false, //разобран ли весь json
     veiw: {x: 0, y: 0, width: canvas.width, height: canvas.height},
+    numberPlan: 0, //номер плана в tLayer где ходит персонаж
 
     //методы объекта
 
     //прогрузка карты
     //-----------------------------------------------------------------------------------------------------------------------
     loadMap(path){//функция для загрузки карты в программу
-        //this.tilesets = new Array();
         let request = new XMLHttpRequest(); //создаем объект ajax запроса
+
         request.onreadystatechange = () =>{ //будет автоматически вызвана после отправки запроса (вне зависимости от результата)
             if (request.readyState === 4 && request.status === 200){ //информация о готовности ответа && код ответа
                 //получен корректный ответ, результат можно обработать
@@ -47,23 +49,34 @@ let mapManager = {
         //console.log(this.mapData.tilewidth);
         this.xCount = this.mapData.width; //сохранение ширины
         this.yCount = this.mapData.height; //сохранение высоты
+
         //сохранение размера блока
-        this.tSize = {
-            x: this.mapData.tilewidth,
-            y: this.mapData.tileheight
-        };
-        this.mapSize = {
-            x: this.xCount * this.tSize.x, //размер карты в пикселях (ширина)
-            y: this.yCount * this.tSize.y //размер карты в пикселях (высота)
-        };
+        this.tSize.x = this.mapData.tilewidth;
+        this.tSize.y = this.mapData.tileheight;
+
+        //вычисляем размер карты
+        this.mapSize.x = this.xCount * this.tSize.x; //размер карты в пикселях (ширина)
+        this.mapSize.y = this.yCount * this.tSize.y; //размер карты в пикселях (высота)
+
+        //настройка видимой зоны
+        this.veiw.width = this.mapSize.x;
+        this.veiw.height = this.mapSize.y;
+
+        //настройка размера canvas
+        canvas.width = this.mapSize.x;
+        canvas.height = this.mapSize.y;
+
         for (let i = 0; i < this.mapData.tilesets.length; i++){ //прогружаем все изображения из которых строится карта
+
             let img = new Image(); //создаем переменную для хранения изображения
             img.onload = () => { //запуститься при загрузке изображения
                 mapManager.imgLoadCount++; //увеличиваем счетчик
                 mapManager.imgLoaded = (mapManager.imgLoadCount === this.mapData.tilesets.length);
             };//конец описания функции onload
+
             let t = this.mapData.tilesets[i]; //забираем tileset из карты
             img.src = "maps/" + t.image; //задание пути к изображению
+
             let ts = { //создаем свой объект tileset
                 firstId: t.firstgid, //с него начинается нумерация в data
                 image: img, //объект рисунка
@@ -71,13 +84,14 @@ let mapManager = {
                 xCount: Math.floor(t.imagewidth / this.tSize.x), //горизонталь в блоках
                 yCount: Math.floor(t.imageheight / this.tSize.y) //вертикаль в блоках
             }; //конц объявления объекта ts
+
             //console.log(ts);
             //console.log(this.tilesets);
             this.tilesets.push(ts);
         }//окончание цикла for
         this.jsonLoaded = true; //true, разобрали весь json
         //console.log(mapManager.imgLoaded, mapManager.jsonLoaded);
-        //console.log(1);
+        //console.log(this.mapData.data);
     },
     //-----------------------------------------------------------------------------------------------------------------------
 
@@ -96,6 +110,9 @@ let mapManager = {
                     if (layer.type === "tilelayer"){ //если не tilelayer пропускаем
                         //console.log(layer);
                         this.tLayer.push(layer);
+
+                        if (layer.name === "main")
+                            this.numberPlan = id;
                         // break;
                     }
                 }//окончание цикла for
@@ -158,7 +175,7 @@ let mapManager = {
 
     isVisible(x, y, width, height){//проверка видимости блока
         return !(x + width < this.veiw.x || y + height < this.veiw.y ||
-                x > this.veiw.x + this.veiw.width || y > this.veiw.y + this.veiw.height);
+            x > this.veiw.x + this.veiw.width || y > this.veiw.y + this.veiw.height);
     },
 
     parseEntities(){ //разбор слоя типа objectgroup
@@ -195,14 +212,14 @@ let mapManager = {
 
     getTilesetIdx(x, y){//вычисляет индекс блока в массиве data
         let idx = Math.floor(y / this.tSize.y) * this.xCount + Math.floor(x / this.tSize.x);
-        return this.tLayer.data[idx];
+        return this.tLayer[this.numberPlan].data[idx];
     }
     //-----------------------------------------------------------------------------------------------------------------------
 };
 
 let Player = {
     pos_x: 50, pos_y: 60, // позиция игрока
-    size_x: 37, size_y: 50, // размеры игрока
+    size_x: 50, size_y: 37, // размеры игрока
     lifetime: 100, // показатели здоровья
     move_x: 0, move_y: 0, // направление движения
     speed: 10, // скорость объекта
@@ -218,16 +235,16 @@ let Player = {
     update() { // обновление в цикле
         physicManager.update(this);
     },
-/*
-    onTouchEntity(obj) { // обработка встречи с препядствием
+    /*
+        onTouchEntity(obj) { // обработка встречи с препядствием
 
-    },
+        },
 
-    kill() { // уничтожение объекта
+        kill() { // уничтожение объекта
 
-    }
+        }
 
- */
+     */
 };
 
 let spriteManager = { // объект для управления спрайтами
@@ -274,6 +291,7 @@ let spriteManager = { // объект для управления спрайта
             if (!mapManager.isVisible(x, y, sprite.w, sprite.h))
                 return; // не рисуем за пределом видимой зоны
             // отображаем спрайт на холсте
+            //console.log(sprite.w, sprite.h);
             ctx.drawImage(this.image, sprite.x, sprite.y, sprite.w, sprite.h, x, y, sprite.w, sprite.h)
         }
     },
@@ -340,9 +358,11 @@ let physicManager = {
         let newY = obj.pos_y + Math.floor(obj.move_y * obj.speed);
 
         //анализ пространства на карте по направлению движения
-        /*
-        let ts = mapManager.getTilesetIdx(newX + obj.size_x / 2, newY + obj.size_y / 2);
+        let ts = mapManager.getTilesetIdx(newX + obj.size_x, newY + obj.size_y);
+        console.log(ts);
+
         let e = this.entityAtXY(obj, newX, newY); //объект на пути
+        /*
         if (e !== null && obj.onTouchEntity) //если есть конфликт (onTouchEnity - функция встречи с другим объектом)
             obj.onTouchEntity(e); //разбор конфликта внутри объекта
         if (ts !== 7 && obj.onTouchMap) //есть припятствие (onTou
@@ -360,7 +380,7 @@ let physicManager = {
         return "move"; //двигаемся
     },
 
-    entittyAtXY(obj, x, y){//определение столкновения объекта по заданным координатам
+    entityAtXY(obj, x, y){//определение столкновения объекта по заданным координатам
         for (let i = 0; i < gameManager.entities.length; i++){
             let e = gameManager.entities[i]; //все объекты карты
             if (e.name !== obj.name){ //имя не совпадает (имена уникальны)
@@ -412,9 +432,9 @@ let gameManager = {
         this.entities.forEach((e) => {
             //console.log(e);
             //try{ //защита от ошибок при выполнении update
-                e.update();
-           // } catch (ex) {
-              //  console.log(-1);
+            e.update();
+            // } catch (ex) {
+            //  console.log(-1);
             //}
         });
 
