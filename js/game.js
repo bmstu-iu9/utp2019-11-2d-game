@@ -8,7 +8,7 @@ var center = new Image();
 
 //IMAGE SIZES
 var canvasSize = 800;
-var shipWidth =  50, shipHeight = 28;
+var shipWidth =  70, shipHeight = 28;
 var centerWidth = 25, centerHeight = 25;
 
 //sources
