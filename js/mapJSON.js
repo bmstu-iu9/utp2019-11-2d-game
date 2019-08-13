@@ -223,16 +223,19 @@ let Player = {
     lifetime: 100, // показатели здоровья
     move_x: 0, move_y: 0, // направление движения
     speed: 10, // скорость объекта
-
+    hitBox: null,
     createPlayer() {
         return Object.create(this);
     },
 
     draw(ctx) { // прорисовка игрока
         spriteManager.drawSprite(ctx, "adventurer-idle-2-00", this.pos_x, this.pos_y)
+        spriteManager.drawHitBox(ctx, this.hitBox);
     },
 
     update() { // обновление в цикле
+        this.hitBox = new AABB(new Vector2(this.pos_x + this.size_x / 2, this.pos_y + this.size_y / 2),
+                               new Vector2(this.size_x / 2, this.size_y / 2));
         physicManager.update(this);
     },
     /*
@@ -291,7 +294,7 @@ let spriteManager = { // объект для управления спрайта
             if (!mapManager.isVisible(x, y, sprite.w, sprite.h))
                 return; // не рисуем за пределом видимой зоны
             // отображаем спрайт на холсте
-            //console.log(sprite.w, sprite.h);
+            console.log(sprite.w, sprite.h);
             ctx.drawImage(this.image, sprite.x, sprite.y, sprite.w, sprite.h, x, y, sprite.w, sprite.h)
         }
     },
@@ -303,6 +306,13 @@ let spriteManager = { // объект для управления спрайта
                 return s;
         }
         return null;
+    },
+
+    drawHitBox(ctx, box){//прорисовка hitBox
+        ctx.beginPath();
+        ctx.strokeStyle = "red";
+        ctx.rect(Math.round(box.center.x - box.halfSize.x), Math.round(box.center.y - box.halfSize.y), Math.round(box.halfSize.x * 2), Math.round(box.halfSize.y * 2));
+        ctx.stroke();
     }
 };
 
@@ -447,6 +457,7 @@ let gameManager = {
 
         if (this.laterKill.length > 0) //очистка массива laterKill
             this.laterKill.length = 0;
+
         mapManager.draw(ctx);
         this.draw(ctx);
     },
@@ -460,28 +471,34 @@ let gameManager = {
         eventsManager.setup();
     },
 
-    play(){
-        setInterval(updateWorld, 100);
-    }
-};
+    updateWorld(){
+        gameManager.update();
+    },
 
-const updateWorld = () => {
-    gameManager.update();
+    play(){
+        setInterval(this.updateWorld, 100);
+    }
 };
 
 gameManager.loadAll();
 gameManager.initPlayer(Player);
 gameManager.play();
-/*
-//eventsManager.setup();
-mapManager.loadMap("maps/tilemap.json");
-spriteManager.loadAtlas("maps/sprites.json", "maps/spritesheet.png");
-mapManager.draw(ctx);
 
-let Player_1 = Player.createPlayer(100);
-//let Player_2 = Player.createPlayer(100);
+class Vector2{
+    constructor(x, y){
+        this.x = x;
+        this.y = y;
+    }
+};
 
-Player_1.pos_x = 50;
-Player_1.pos_y = 60;
-Player_1.draw(ctx);
-*/
+class AABB{ //хит бокс
+    constructor(center, halfSize){ //конструктор
+        this.center = center; //центр прямоугольника
+        this.halfSize = halfSize; //полу длинаа
+    }
+
+    overlaps(other){ //пересекаются ли прямоугольники
+        return !(Math.abs(this.center.x - other.center.x) > this.halfSize.x + other.halfSize.x) &&
+               !(Math.abs(this.center.y - other.center.y) > this.halfSize.y + other.halfSize.y);
+    }
+};
