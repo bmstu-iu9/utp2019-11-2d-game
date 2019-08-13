@@ -5,7 +5,6 @@ let ctx = canvas.getContext("2d"); //включаем 2d графику
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
-//console.log(canvas);
 
 class Vector2{
 
@@ -73,7 +72,6 @@ let mapManager = {
 
     parseMap(tilesJSON){
         this.mapData = JSON.parse(tilesJSON); //разобрать JSON
-        //console.log(this.mapData.tilewidth);
         this.xCount = this.mapData.width; //сохранение ширины
         this.yCount = this.mapData.height; //сохранение высоты
 
@@ -111,14 +109,9 @@ let mapManager = {
                 xCount: Math.floor(t.imagewidth / this.tSize.x), //горизонталь в блоках
                 yCount: Math.floor(t.imageheight / this.tSize.y) //вертикаль в блоках
             }; //конц объявления объекта ts
-
-            //console.log(ts);
-            //console.log(this.tilesets);
             this.tilesets.push(ts);
         }//окончание цикла for
         this.jsonLoaded = true; //true, разобрали весь json
-        //console.log(mapManager.imgLoaded, mapManager.jsonLoaded);
-        //console.log(this.mapData.data);
     },
     //-----------------------------------------------------------------------------------------------------------------------
 
@@ -127,15 +120,12 @@ let mapManager = {
     draw(ctx){//нарисовать карту в ctx
         //если карта не загружена, то повторить прорисовку через 100 мск
         if (!mapManager.imgLoaded || !mapManager.jsonLoaded){
-            //console.log(mapManager.imgLoaded, mapManager.jsonLoaded);
             setTimeout(() =>{mapManager.draw(ctx);}, 100);
         } else {
             if (this.tLayer.length === 0){//проверяем что tLayer настроен
                 for (let id = 0; id < this.mapData.layers.length; id++){ //проходим по всем layer карты
                     let layer = this.mapData.layers[id];
-                    //console.log(layer.type);
                     if (layer.type === "tilelayer"){ //если не tilelayer пропускаем
-                        //console.log(layer);
                         this.tLayer.push(layer);
 
                         if (layer.name === "main")
@@ -145,12 +135,10 @@ let mapManager = {
                     this.loadLayer = true;
                 }//окончание цикла for
             }
-            //console.log(mapManager.tLayer);
             for (let id = 0; id < this.tLayer.length; id++) {
                 for (let i = 0; i < this.tLayer[id].data.length; i++) {//пройти по всей карте
                     let a = this.tLayer[id].data[i];
                     if (a !== 0) { //если нет данных пропускаем
-                        //console.log(a);
                         let tile = this.getTile(a);//получение блока по индексу
                         //i-проходит линейно по массиву, xCount-длина по x
                         let pX = (i % this.xCount) * this.tSize.x; //вычисляем x в пикселях
@@ -176,7 +164,6 @@ let mapManager = {
             px: 0, py: 0 //координаты блока в tileset
         };
         let tileset = this.getTileset(tileIndex);
-        //console.log(tileset);
         tile.img = tileset.image;//изображение искомого tileset
         let id = tileIndex - tileset.firstId;//индекс блока в tileset
         //блок прямоугольный, остаток от деления на xCount дает x в tileset
@@ -190,10 +177,8 @@ let mapManager = {
     },
 
     getTileset(tileIndex){ //получение блока по индексу
-        //console.log(this.tilesets);
         for (let i = this.tilesets.length - 1; i >= 0; i--){
             //в каждом tilesets[i].firstId записанно число с которого начинается нумерация блоков
-            //console.log(this.tilesets[i]);
             if (this.tilesets[i].firstId <= tileIndex){//если индекс первого блока меньше или равен искомому значит этот tileset и нужен
                 return this.tilesets[i];
             }
@@ -240,7 +225,6 @@ let mapManager = {
 
     getTilesetIdx(x, y){//вычисляет индекс блока в массиве data
         let idx = Math.floor(y / this.tSize.y) * this.xCount + Math.floor(x / this.tSize.x);
-        console.log(this.tLayer[this.numberPlan]);
         return this.tLayer[this.numberPlan].data[idx];
     }
     //-----------------------------------------------------------------------------------------------------------------------
@@ -268,10 +252,9 @@ class Player{
     };
 
     update() { // обновление в цикле
-        //this.hitBox = new AABB(new Vector2(this.pos_x + this.size_x / 2, this.pos_y + this.size_y / 2),
-        //                       new Vector2(this.size_x / 2, this.size_y / 2));
-        console.log(mapManager.jsonLoaded);
-        this.physicManager.update();
+        if (mapManager.loadLayer) {
+            this.physicManager.update();
+        }
         this.pos_x = this.physicManager.mPosition.x;
         this.pos_y = this.physicManager.mPosition.y;
     };
@@ -331,7 +314,6 @@ let spriteManager = { // объект для управления спрайта
             if (!mapManager.isVisible(x, y, sprite.w, sprite.h))
                 return; // не рисуем за пределом видимой зоны
             // отображаем спрайт на холсте
-            //console.log(sprite.w, sprite.h);
             ctx.drawImage(this.image, sprite.x, sprite.y, sprite.w, sprite.h, x, y, sprite.w, sprite.h)
         }
     },
@@ -362,9 +344,8 @@ let eventsManager = {
     //методы
     setup(){ //настройка клавиш и прявизки
         //настройка привязки к действию
-        this.bind['KeyW'] = "up"; //w
+        this.bind['Space'] = "up"; //пробел
         this.bind['KeyA'] = "left"; //a
-        this.bind['KeyS'] = "down"; //s
         this.bind['KeyD'] = "right"; //d
 
         //настраиваем обработчик
@@ -374,10 +355,9 @@ let eventsManager = {
 
     keyDown(event){ //нажатие клавиши
         let action = eventsManager.bind[event.code]; //получаем действие по коду клавиши
-        //console.log(event.code);
         if (action){
             eventsManager.action[action] = true; //согласились выполнить действие
-            //console.log(action);
+
         }
     },
 
@@ -386,7 +366,7 @@ let eventsManager = {
 
         if (action){
             eventsManager.action[action] = false; //согласились выполнить действие
-            //console.log(action);
+
         }
     }
 
@@ -395,6 +375,8 @@ let eventsManager = {
 //менеджер физики объектов
 class physicManager{
     move = null; //направление движения
+    g = 1; //ускорение свободного падения
+    powerJump = 10; //сила прыжка
 
     mOldPosition = null; //положение на предыдущем кадре
     mPosition = null; //текущее положение
@@ -425,9 +407,9 @@ class physicManager{
 
     constructor(mPosition, mSpeed, mAABB, mScale){//конструктор
         this.mPosition = mPosition;
-        this.mSpeed = mSpeed;
+        this.mSpeed = new Vector2(mSpeed, 0);
         this.mAABB = mAABB;
-        this.mScale = mScale;
+        this.mScale = mScale
         this.move = new Vector2(0, 0);
         this.mOldPosition = new Vector2(0, 0);
         this.mOldSpeed = new Vector2(0, 0);
@@ -436,20 +418,21 @@ class physicManager{
     setMove(){
         //по умолчанию игрок никуда не двигается
         this.move.x = 0;
-        this.move.y = 1;
+        this.move.y = 0;
 
         //поймали событие обрабатываем
-        if (eventsManager.action['up']) this.move.y = -1;
-        if (eventsManager.action['down']) this.move.y = 1;
+        if (eventsManager.action['up']){
+            this.move.y = 1;
+            if (this.mWasOnGround){
+                this.mOnGround = false;
+            }
+        }
         if (eventsManager.action['left']) this.move.x = -1;
         if (eventsManager.action['right']) this.move.x = 1;
     };
 
     //методы
     update(){//обновление состояния объекта
-        if (!mapManager.loadLayer){
-            setTimeout(() =>{gameManager.player.update();}, 100);
-        } else {
             //сохраняем предыдущие значения
             this.mOldPosition.copy(this.mPosition);
             this.mOldSpeed.copy(this.mSpeed);
@@ -460,19 +443,16 @@ class physicManager{
 
             this.setMove();
 
-            if (this.move.x === 0 && this.move.y === 0)
-                return 'stop'; //скорость движения нулевая
+            if (!this.mOnGround){
+                this.move.y = 1;
+            }
+           //if (this.move.x === 0 && this.move.y === 0)
+             //   return 'stop'; //скорость движения нулевая
 
             //вычисение новых координат объекта
-            let modX = Math.floor(this.move.x * this.mSpeed);
-            let modY = Math.floor(this.move.y * this.mSpeed);
-            //this.mPosition.x += modX;
-            //this.mPosition.y += modY;
+            let modX = Math.floor(this.move.x * this.mSpeed.x);
+            let modY = Math.floor(this.move.y * this.mSpeed.y);
 
-            //this.mAABB.center.x += modX;
-            //this.mAABB.center.y += modY;
-
-            console.log(modX, modY);
             //вычисляем грани хит бокса
             let down = this.mAABB.center.y + this.mAABB.halfSize.y + modY; //низ
             let right = this.mAABB.center.x + this.mAABB.halfSize.x + modX; //правый угол
@@ -482,7 +462,6 @@ class physicManager{
             let tsDown = mapManager.getTilesetIdx(this.mAABB.center.x, down);
             let tsRight = mapManager.getTilesetIdx(right, this.mAABB.center.y);
             let tsLeft = mapManager.getTilesetIdx(left, this.mAABB.center.y);
-            //console.log(tsDown, tsRight, tsLeft);
 
             //let e = this.entityAtXY(obj, newX, newY); //объект на пути
             /*
@@ -501,7 +480,10 @@ class physicManager{
 
             if (tsDown !== 0) {
                 modY = 0;
-                this.move.y = 0;
+                this.mSpeed.y = -this.powerJump;
+                this.mOnGround = true;
+            } else {
+                this.mSpeed.y += this.g;
             }
             if (tsRight !== 0) {
                 modX = 0;
@@ -516,7 +498,6 @@ class physicManager{
             this.mAABB.center.x += modX;
             this.mAABB.center.y += modY;
             return "move"; //двигаемся
-        }
     };
 
     entityAtXY(obj, x, y){//определение столкновения объекта по заданным координатам
@@ -553,7 +534,6 @@ let gameManager = {
         }
     },
     update(){//обновление информации
-        //console.log(this.player);
         if (this.player === null){
             return;
         }
@@ -562,7 +542,6 @@ let gameManager = {
 
         //обновление информации по всем объектам на карте
         this.entities.forEach((e) => {
-            //console.log(e);
             //try{ //защита от ошибок при выполнении update
             e.update();
             // } catch (ex) {
