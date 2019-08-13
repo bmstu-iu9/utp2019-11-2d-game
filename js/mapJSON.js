@@ -48,7 +48,8 @@ let mapManager = {
     imgLoaded: false, //загруженны ли все изображения
     jsonLoaded: false, //разобран ли весь json
     veiw: {x: 0, y: 0, width: canvas.width, height: canvas.height},
-    numberPlan: 0, //номер плана в tLayer где ходит персонаж
+    numberPlan: 2, //номер плана в tLayer где ходит персонаж
+    loadLayer: false,
 
     //методы объекта
 
@@ -141,6 +142,7 @@ let mapManager = {
                             this.numberPlan = id;
                         // break;
                     }
+                    this.loadLayer = true;
                 }//окончание цикла for
             }
             //console.log(mapManager.tLayer);
@@ -238,6 +240,7 @@ let mapManager = {
 
     getTilesetIdx(x, y){//вычисляет индекс блока в массиве data
         let idx = Math.floor(y / this.tSize.y) * this.xCount + Math.floor(x / this.tSize.x);
+        console.log(this.tLayer[this.numberPlan]);
         return this.tLayer[this.numberPlan].data[idx];
     }
     //-----------------------------------------------------------------------------------------------------------------------
@@ -267,6 +270,7 @@ class Player{
     update() { // обновление в цикле
         //this.hitBox = new AABB(new Vector2(this.pos_x + this.size_x / 2, this.pos_y + this.size_y / 2),
         //                       new Vector2(this.size_x / 2, this.size_y / 2));
+        console.log(mapManager.jsonLoaded);
         this.physicManager.update();
         this.pos_x = this.physicManager.mPosition.x;
         this.pos_y = this.physicManager.mPosition.y;
@@ -432,7 +436,7 @@ class physicManager{
     setMove(){
         //по умолчанию игрок никуда не двигается
         this.move.x = 0;
-        this.move.y = 0;
+        this.move.y = 1;
 
         //поймали событие обрабатываем
         if (eventsManager.action['up']) this.move.y = -1;
@@ -443,72 +447,76 @@ class physicManager{
 
     //методы
     update(){//обновление состояния объекта
-
-        //сохраняем предыдущие значения
-        this.mOldPosition.copy(this.mPosition);
-        this.mOldSpeed.copy(this.mSpeed);
-        this.mPushedRightWall = this.mPushesRightWall;
-        this.mPushedLeftWall = this.mPushesLeftWall;
-        this.mWasOnGround = this.mOnGround;
-        this.mWasAtCeiling = this.mAtCeiling;
-
-        this.setMove();
-
-        if(this.move.x === 0 && this.move.y === 0)
-            return 'stop'; //скорость движения нулевая
-
-        //вычисение новых координат объекта
-        let modX = Math.floor(this.move.x * this.mSpeed);
-        let modY = Math.floor(this.move.y * this.mSpeed);
-        //this.mPosition.x += modX;
-        //this.mPosition.y += modY;
-
-        //this.mAABB.center.x += modX;
-        //this.mAABB.center.y += modY;
-
-        //вычисляем грани хит бокса
-        let down = this.mAABB.center.y + this.mAABB.halfSize.y + modY; //низ
-        let right = this.mAABB.center.x + this.mAABB.halfSize.x + modX; //правый угол
-        let left = this.mAABB.center.x - this.mAABB.halfSize.x + modX; //левый угол
-
-        //анализ пространства на карте по направлению движения
-        let tsDown = mapManager.getTilesetIdx(this.mAABB.center.x, down);
-        let tsRight = mapManager.getTilesetIdx(right, this.mAABB.center.y);
-        let tsLeft = mapManager.getTilesetIdx(left, this.mAABB.center.y);
-        //console.log(tsDown, tsRight, tsLeft);
-
-        //let e = this.entityAtXY(obj, newX, newY); //объект на пути
-        /*
-        if (e !== null && obj.onTouchEntity) //если есть конфликт (onTouchEnity - функция встречи с другим объектом)
-            obj.onTouchEntity(e); //разбор конфликта внутри объекта
-        if (ts !== 7 && obj.onTouchMap) //есть припятствие (onTou
-            obj.onTouchMap(ts); //разбор конфликта с припятствием внутри объекта
-
-        if (ts === 7 && e === null){ //перемещаем объект на свободное место
-            obj.pos_x = newX;
-            obj.pos_y = newY;
+        if (!mapManager.loadLayer){
+            setTimeout(() =>{gameManager.player.update();}, 100);
         } else {
-            return "break"; //дальше двигаться нельзя
-        }
-        */
+            //сохраняем предыдущие значения
+            this.mOldPosition.copy(this.mPosition);
+            this.mOldSpeed.copy(this.mSpeed);
+            this.mPushedRightWall = this.mPushesRightWall;
+            this.mPushedLeftWall = this.mPushesLeftWall;
+            this.mWasOnGround = this.mOnGround;
+            this.mWasAtCeiling = this.mAtCeiling;
 
-        if (tsDown !== 0){
-            modY = 0;
+            this.setMove();
 
-        }
-        if (tsRight !== 0){
-            modX = 0;
-        }
-        if (tsLeft !== 0){
-            modX = 0;
-        }
+            if (this.move.x === 0 && this.move.y === 0)
+                return 'stop'; //скорость движения нулевая
 
-        this.mPosition.x += modX;
-        this.mPosition.y += modY;
+            //вычисение новых координат объекта
+            let modX = Math.floor(this.move.x * this.mSpeed);
+            let modY = Math.floor(this.move.y * this.mSpeed);
+            //this.mPosition.x += modX;
+            //this.mPosition.y += modY;
 
-        this.mAABB.center.x += modX;
-        this.mAABB.center.y += modY;
-        return "move"; //двигаемся
+            //this.mAABB.center.x += modX;
+            //this.mAABB.center.y += modY;
+
+            console.log(modX, modY);
+            //вычисляем грани хит бокса
+            let down = this.mAABB.center.y + this.mAABB.halfSize.y + modY; //низ
+            let right = this.mAABB.center.x + this.mAABB.halfSize.x + modX; //правый угол
+            let left = this.mAABB.center.x - this.mAABB.halfSize.x + modX; //левый угол
+
+            //анализ пространства на карте по направлению движения
+            let tsDown = mapManager.getTilesetIdx(this.mAABB.center.x, down);
+            let tsRight = mapManager.getTilesetIdx(right, this.mAABB.center.y);
+            let tsLeft = mapManager.getTilesetIdx(left, this.mAABB.center.y);
+            //console.log(tsDown, tsRight, tsLeft);
+
+            //let e = this.entityAtXY(obj, newX, newY); //объект на пути
+            /*
+            if (e !== null && obj.onTouchEntity) //если есть конфликт (onTouchEnity - функция встречи с другим объектом)
+                obj.onTouchEntity(e); //разбор конфликта внутри объекта
+            if (ts !== 7 && obj.onTouchMap) //есть припятствие (onTou
+                obj.onTouchMap(ts); //разбор конфликта с припятствием внутри объекта
+
+            if (ts === 7 && e === null){ //перемещаем объект на свободное место
+                obj.pos_x = newX;
+                obj.pos_y = newY;
+            } else {
+                return "break"; //дальше двигаться нельзя
+            }
+            */
+
+            if (tsDown !== 0) {
+                modY = 0;
+                this.move.y = 0;
+            }
+            if (tsRight !== 0) {
+                modX = 0;
+            }
+            if (tsLeft !== 0) {
+                modX = 0;
+            }
+
+            this.mPosition.x += modX;
+            this.mPosition.y += modY;
+
+            this.mAABB.center.x += modX;
+            this.mAABB.center.y += modY;
+            return "move"; //двигаемся
+        }
     };
 
     entityAtXY(obj, x, y){//определение столкновения объекта по заданным координатам
@@ -598,66 +606,3 @@ let gameManager = {
 gameManager.loadAll();
 
 gameManager.play();
-
-/*
-class MovingManager { //Перемещение объекта
-    move = null; //направление движения
-
-    mOldPosition = null; //положение на предыдущем кадре
-    mPosition = null; //текущее положение
-
-    mOldSpeed = null; //скорость предыдущем кадре
-    mSpeed = null; //текущая скорость
-
-    //mScale = null; //масштаб
-
-    mAABB = null; //хит бокс
-    //mAABBOffset = null; //смещение хит бокса
-
-    //стена справа
-    mPushedRightWall = false; //находился ли объект близко к ней последний кадр
-    mPushesRightWall = false; //объект находится ли близко к стене
-
-    //стена слева
-    mPushedLeftWall = false; //находился ли объект близко к ней последний кадр
-    mPushesLeftWall = false; //объект находится ли близко к стене
-
-    //пол
-    mWasOnGround = false; //находился ли объект близко к полу последний кадр
-    mOnGround = false; //объект находится ли близко к полу
-
-    //поталок
-    mWasAtCeiling = false; //находился ли объект близко к поталку последний кадр
-    mAtCeiling = false; //объект находится ли близко к поталку
-
-    constructor(mPosition, mSpeed, mAABB){//конструктор
-        this.mPosition = mPosition;
-        this.mSpeed = mSpeed;
-        this.mAABB = mAABB;
-    };
-
-    setMove(){
-        //по умолчанию игрок никуда не двигается
-        this.move.x = 0;
-        this.move.y = 0;
-
-        //поймали событие обрабатываем
-        if (eventsManager.action['up']) this.move.y = -1;
-        if (eventsManager.action['down']) this.move.y = 1;
-        if (eventsManager.action['left']) this.move.x = -1;
-        if (eventsManager.action['right']) this.move.x = 1;
-    };
-
-    UpdatePhisics(){ //обновление движения
-        //сохраняем предыдущие значения
-        this.mOldPosition = this.mPosition;
-        this.mOldSpeed = this.mSpeed;
-        this.mPushedRightWall = this.mPushesRightWall;
-        this.mPushedLeftWall = this.mPushesLeftWall;
-        this.mWasOnGround = this.mOnGround;
-        this.mWasAtCeiling = this.mAtCeiling;
-
-        this.mPosition.x += Math.floor(this.move.x * );
-    };
-};
-*/
