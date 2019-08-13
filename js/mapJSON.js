@@ -502,3 +502,32 @@ class AABB{ //хит бокс
                !(Math.abs(this.center.y - other.center.y) > this.halfSize.y + other.halfSize.y);
     }
 };
+
+class MovingObject { //Перемещение объекта
+    mOldPosition = null; //положение на предыдущем кадре
+    mPosition = null; //текущее положение
+
+    mOldSpeed = null; //скорость предыдущем кадре
+    mSpeed = null; //текущая скорость
+
+    mScale = null; //масштаб
+
+    mAABB = null; //хит бокс
+    mAABBOffset = null; //смещение хит бокса
+
+    //стена справа
+    mPushedRightWall = false; //находился ли объект близко к ней последний кадр
+    mPushesRightWall = false; //объект находится ли близко к стене
+
+    //стена слева
+    mPushedLeftWall = false; //находился ли объект близко к ней последний кадр
+    mPushesLeftWall = false; //объект находится ли близко к стене
+
+    //пол
+    mWasOnGround = false; //находился ли объект близко к полу последний кадр
+    mOnGround = false; //объект находится ли близко к полу
+
+    //поталок
+    mWasAtCeiling = false; //находился ли объект близко к поталку последний кадр
+    mAtCeiling = false; //объект находится ли близко к поталку
+};
