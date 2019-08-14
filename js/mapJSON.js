@@ -489,7 +489,10 @@ class physicManager {
         */
 
         if (tsDown !== 0) {
-            modY = 0;
+            if (!this.mWasOnGround) //&& ((this.mAABB.center.y + this.mAABB.halfSize.y) % mapManager.tSize.y !== 0))
+                modY = mapManager.tSize.y - ((this.mAABB.center.y + this.mAABB.halfSize.y) % mapManager.tSize.y);
+            else
+                modY = 0;
             this.mSpeed.y = -this.powerJump;
             this.mOnGround = true;
         } else {
@@ -552,11 +555,11 @@ let gameManager = {
 
         //обновление информации по всем объектам на карте
         this.entities.forEach((e) => {
-            //try{ //защита от ошибок при выполнении update
-            e.update();
-            // } catch (ex) {
-            //  console.log(-1);
-            //}
+            try{ //защита от ошибок при выполнении update
+                e.update();
+             } catch (ex) {
+                console.log(-1);
+             }
         });
 
         //удаление всех объектов, попавших в laterKill
@@ -564,8 +567,7 @@ let gameManager = {
             let idx = this.entities.indexOf(this.laterKill[i]);
             if (idx > -1)
                 this.entities.splice(idx, 1); //удаление из массива 1 объекта
-        }
-        ;
+        };
 
         if (this.laterKill.length > 0) //очистка массива laterKill
             this.laterKill.length = 0;
