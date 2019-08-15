@@ -506,17 +506,19 @@ class physicManager {
             this.mSpeed.y += this.g;
         }
 
-        if (tsRight !== 0) {
-            if (!this.mPushedRightWall){
+        if (tsRight !== 0 || right > canvas.width) {
+            if (!this.mPushedRightWall && (this.mAABB.center.x - this.mAABB.halfSize.x) !== canvas.width){
                 modX = mapManager.tSize.x - ((this.mAABB.center.x + this.mAABB.halfSize.x) % mapManager.tSize.x);
             } else
                 modX = 0;
             this.mPushesRightWall = true;
         }
 
-        if (tsLeft !== 0) {
-            if (!this.mPushedLeftWall){
-                modX = -(mapManager.tSize.x - ((this.mAABB.center.x - this.mAABB.halfSize.x) % mapManager.tSize.x));
+        //console.log(left);
+        if (tsLeft !== 0 || left < 0) {
+            console.log(!this.mPushedLeftWall, (this.mAABB.center.x - this.mAABB.halfSize.x));
+            if (!this.mPushedLeftWall && (this.mAABB.center.x - this.mAABB.halfSize.x) !== 0){
+                modX = -((this.mAABB.center.x - this.mAABB.halfSize.x) % mapManager.tSize.x);
             } else
                 modX = 0;
             this.mPushesLeftWall = true;
