@@ -433,12 +433,18 @@ class physicManager {
         //поймали событие обрабатываем
         if (eventsManager.action['up']) {
             this.move.y = 1;
-            if (this.mWasOnGround) {
+            //if (this.mWasOnGround) { //подумать
                 this.mOnGround = false;
-            }
+            //}
         }
-        if (eventsManager.action['left']) this.move.x = -1;
-        if (eventsManager.action['right']) this.move.x = 1;
+        if (eventsManager.action['left']){
+            this.move.x = -1;
+            this.mPushesRightWall = false;
+        }
+        if (eventsManager.action['right']){
+            this.move.x = 1;
+            this.mPushesLeftWall = false;
+        }
     };
 
     //методы
@@ -488,8 +494,9 @@ class physicManager {
         }
         */
 
+        //console.log(tsLeft);
         if (tsDown !== 0) {
-            if (!this.mWasOnGround) //&& ((this.mAABB.center.y + this.mAABB.halfSize.y) % mapManager.tSize.y !== 0))
+            if (!this.mWasOnGround) //подумать
                 modY = mapManager.tSize.y - ((this.mAABB.center.y + this.mAABB.halfSize.y) % mapManager.tSize.y);
             else
                 modY = 0;
@@ -498,11 +505,21 @@ class physicManager {
         } else {
             this.mSpeed.y += this.g;
         }
+
         if (tsRight !== 0) {
-            modX = 0;
+            if (!this.mPushedRightWall){
+                modX = mapManager.tSize.x - ((this.mAABB.center.x + this.mAABB.halfSize.x) % mapManager.tSize.x);
+            } else
+                modX = 0;
+            this.mPushesRightWall = true;
         }
+
         if (tsLeft !== 0) {
-            modX = 0;
+            if (!this.mPushedLeftWall){
+                modX = -(mapManager.tSize.x - ((this.mAABB.center.x - this.mAABB.halfSize.x) % mapManager.tSize.x));
+            } else
+                modX = 0;
+            this.mPushesLeftWall = true;
         }
 
         this.mPosition.x += modX;
