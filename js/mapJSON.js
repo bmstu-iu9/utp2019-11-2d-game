@@ -433,17 +433,18 @@ class physicManager {
         //поймали событие обрабатываем
         if (eventsManager.action['up']) {
             this.move.y = 1;
+            if (this.mWasOnGround) {
+                this.mSpeed.y = -this.powerJump;
+            }
             //if (this.mWasOnGround) { //подумать
-                this.mOnGround = false;
+                //this.mOnGround = false;
             //}
         }
         if (eventsManager.action['left']){
             this.move.x = -1;
-            this.mPushesRightWall = false;
         }
         if (eventsManager.action['right']){
             this.move.x = 1;
-            this.mPushesLeftWall = false;
         }
     };
 
@@ -469,15 +470,28 @@ class physicManager {
         let modX = Math.floor(this.move.x * this.mSpeed.x);
         let modY = Math.floor(this.move.y * this.mSpeed.y);
 
+        let center = this.mAABB.center;
+        let halfSize = this.mAABB.halfSize;
+
         //вычисляем грани хит бокса
-        let down = this.mAABB.center.y + this.mAABB.halfSize.y + modY; //низ
-        let right = this.mAABB.center.x + this.mAABB.halfSize.x + modX; //правый угол
-        let left = this.mAABB.center.x - this.mAABB.halfSize.x + modX; //левый угол
+        let up = center.y - halfSize.y + modY; //вверх
+        let down = center.y + halfSize.y + modY; //низ
+        let right = center.x + halfSize.x + modX; //правый угол
+        let left = center.x - halfSize.x + modX; //левый угол
 
         //анализ пространства на карте по направлению движения
-        let tsDown = mapManager.getTilesetIdx(this.mAABB.center.x, down);
-        let tsRight = mapManager.getTilesetIdx(right, this.mAABB.center.y);
-        let tsLeft = mapManager.getTilesetIdx(left, this.mAABB.center.y);
+        //let tsDown = mapManager.getTilesetIdx(this.mAABB.center.x, down);
+       // let tsRight = mapManager.getTilesetIdx(right, this.mAABB.center.y);
+       // let tsLeft = mapManager.getTilesetIdx(left, this.mAABB.center.y);
+
+        let tsRightUp = mapManager.getTilesetIdx(right, center.y - halfSize.y + mapManager.tSize.y);
+        let tsUpRight = mapManager.getTilesetIdx(center.x + halfSize.x - mapManager.tSize.x, up);
+        let tsUpLeft = mapManager.getTilesetIdx(center.x - halfSize.x + mapManager.tSize.x, up);
+        let tsLeftUp = mapManager.getTilesetIdx(left, center.y - halfSize.y + mapManager.tSize.y);
+        let tsLeftDown = mapManager.getTilesetIdx(left, center.y + halfSize.y - mapManager.tSize.y);
+        let tsDownLeft = mapManager.getTilesetIdx(center.x - halfSize.x + mapManager.tSize.x, down);
+        let tsDownRight = mapManager.getTilesetIdx(center.x + halfSize.x - mapManager.tSize.x, down);
+        let tsRightDown = mapManager.getTilesetIdx(right, halfSize.y + center.y - mapManager.tSize.y);
 
         //let e = this.entityAtXY(obj, newX, newY); //объект на пути
         /*
@@ -494,34 +508,52 @@ class physicManager {
         }
         */
 
-        //console.log(tsLeft);
-        if (tsDown !== 0) {
+        //console.log(tsDownLeft, tsDownRight);
+        if (tsDownLeft !== 0 || tsDownRight != 0) {
             if (!this.mWasOnGround) //подумать
                 modY = mapManager.tSize.y - ((this.mAABB.center.y + this.mAABB.halfSize.y) % mapManager.tSize.y);
             else
                 modY = 0;
-            this.mSpeed.y = -this.powerJump;
+            this.mSpeed.y = 0;//-this.powerJump;
             this.mOnGround = true;
         } else {
             this.mSpeed.y += this.g;
+            this.mOnGround = false;
         }
 
-        if (tsRight !== 0 || right > canvas.width) {
+        //console.log(tsRightDown, tsRightUp);
+        if (tsRightDown !== 0 || tsRightUp !== 0 || right > canvas.width) {
             if (!this.mPushedRightWall && (this.mAABB.center.x - this.mAABB.halfSize.x) !== canvas.width){
                 modX = mapManager.tSize.x - ((this.mAABB.center.x + this.mAABB.halfSize.x) % mapManager.tSize.x);
             } else
                 modX = 0;
             this.mPushesRightWall = true;
+        } else {
+            this.mPushesRightWall = false;
         }
 
         //console.log(left);
-        if (tsLeft !== 0 || left < 0) {
-            console.log(!this.mPushedLeftWall, (this.mAABB.center.x - this.mAABB.halfSize.x));
+        if (tsLeftDown !== 0 || tsLeftUp !== 0 || left < 0) {
+            //console.log(!this.mPushedLeftWall, (this.mAABB.center.x - this.mAABB.halfSize.x));
             if (!this.mPushedLeftWall && (this.mAABB.center.x - this.mAABB.halfSize.x) !== 0){
                 modX = -((this.mAABB.center.x - this.mAABB.halfSize.x) % mapManager.tSize.x);
             } else
                 modX = 0;
             this.mPushesLeftWall = true;
+        } else {
+            this.mPushesLeftWall = false;
+        }
+
+        //console.log(tsUpLeft, tsUpRight);
+        if (tsUpLeft !== 0 || tsUpRight !== 0){
+            if (!this.mWasAtCeiling){
+                modY = -((center.y - halfSize.y) % mapManager.tSize.y);
+            } else
+                modY = 0;
+            this.mSpeed.y = 0;
+            this.mAtCeiling = true;
+        } else {
+            this.mAtCeiling = false;
         }
 
         this.mPosition.x += modX;
