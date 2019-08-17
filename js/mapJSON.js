@@ -340,7 +340,9 @@ let spriteManager = { // объект для управления спрайта
     drawHitBox(ctx, box) {//прорисовка hitBox
         ctx.beginPath();
         ctx.strokeStyle = "red";
-        ctx.rect(Math.round(box.center.x - box.halfSize.x), Math.round(box.center.y - box.halfSize.y), Math.round(box.halfSize.x * 2), Math.round(box.halfSize.y * 2));
+        ctx.rect(Math.round(box.center.x - box.halfSize.x),
+            Math.round(box.center.y - box.halfSize.y),
+            Math.round(box.halfSize.x * 2), Math.round(box.halfSize.y * 2));
         ctx.stroke();
     }
 };
@@ -530,10 +532,11 @@ class physicManager {
 let gameManager = {
     factory: {}, //фабрика объектов на карте
     entities: [], //объекты на карте
-    player: null, //указатель на объект игрока
+    player: [], //указатель на объект игрока
     laterKill: [], //отложенное уничтожение объектов
     initPlayer() { //инициализация игрока
-        this.player = new Player(50, 60, 10);
+        this.player[0] = new Player(50, 60, 10);
+        this.player[1] = new Player(60, 60, 10);
     },
     kill(obj) {
         this.laterKill.push(obj);
@@ -544,7 +547,7 @@ let gameManager = {
         }
     },
     update() {//обновление информации
-        if (this.player === null) {
+        if (this.player[0] === null || this.player[1] === null) {
             return;
         }
 
@@ -578,8 +581,10 @@ let gameManager = {
         mapManager.loadMap("maps/tilemap.json");
         spriteManager.loadAtlas("maps/sprites.json", "maps/spritesheet.png");
         gameManager.initPlayer();
-        gameManager.factory['Player'] = this.player;
-        gameManager.entities.push(gameManager.factory['Player']);
+        gameManager.factory['PlayerFirst'] = this.player[0];
+        gameManager.entities.push(gameManager.factory['PlayerFirst']);
+        gameManager.factory['PlayerSecond'] = this.player[1];
+        gameManager.entities.push(gameManager.factory['PlayerSecond'])
         //mapManager.parseEntities();
         eventsManager.setup();
     },
