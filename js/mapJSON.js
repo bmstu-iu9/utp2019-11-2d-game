@@ -244,6 +244,7 @@ class Player {
     //speed: 10, // скорость объекта
     //hitBox: null,
     physicManager = null;
+    drawManager = null;
 
     constructor(x, y, speed) {
         this.physicManager = new physicManager(new Vector2(x, y),
@@ -251,16 +252,21 @@ class Player {
             new AABB(new Vector2(x + this.size_x / 2, y + this.size_y / 2),
                 new Vector2(this.size_x / 2, this.size_y / 2)),
             new Vector2(this.size_x, this.size_y));
+        this.drawManager = new drawManager;
+        this.drawManager.state = 'idle';
+        this.drawManager.frame = 0;
+        this.drawManager.frameName = 'adventurer-idle-2-00'
     };
 
     draw(ctx) { // прорисовка игрока
-        spriteManager.drawSprite(ctx, "adventurer-idle-2-00", this.pos_x, this.pos_y)
+        spriteManager.drawSprite(ctx, this.drawManager.getSpriteName, this.pos_x, this.pos_y);
         spriteManager.drawHitBox(ctx, this.physicManager.mAABB);
     };
 
     update() { // обновление в цикле
         if (mapManager.loadLayer) {
-            this.physicManager.update();
+            let state = this.physicManager.update();
+            this.drawManager.updateState(state);
         }
         this.pos_x = this.physicManager.mPosition.x;
         this.pos_y = this.physicManager.mPosition.y;
@@ -276,6 +282,50 @@ class Player {
         }
 
      */
+};
+
+let drawManager = { // объект для выбора кадра в прорисовку
+    state: null, // текущее состояние
+    frame: null, // номер кадра в текущей анимации
+    frameName: null, // имя спрайта
+
+    updateState(newState) {
+        if (newState === this.state) { // если состояние не изменилось, набор кадров не меняется
+            this.nextFrame();
+        } else {
+            this.state = newState;
+            this.frame = 0;
+        }
+    },
+
+    nextFrame() { // выбор номера следующего кадра
+        switch (this.state) {
+            case "idle":
+                switch (this.frame) {
+                    case 3:
+                        this.frame = 0;
+                        this.frameName = 'adventurer-idle-2-00';
+                        break;
+                    case 0:
+                        this.frame++;
+                        this.frameName = 'adventurer-idle-2-01';
+                        break;
+                    case 1:
+                        this.frame++;
+                        this.frameName = 'adventurer-idle-2-02';
+                        break;
+                    case 2:
+                        this.frame++;
+                        this.frameName = 'adventurer-idle-2-03';
+                        break;
+                }
+                break;
+        }
+    },
+
+    getSpriteName() {
+        return this.frameName;
+    },
 };
 
 let spriteManager = { // объект для управления спрайтами
@@ -412,8 +462,8 @@ class physicManager {
     mOnGround = false; //объект находится ли близко к полу
 
     //поталок
-    mWasAtCeiling = false; //находился ли объект близко к поталку последний кадр
-    mAtCeiling = false; //объект находится ли близко к поталку
+    mWasAtCeiling = false; //находился ли объект близко к потолку последний кадр
+    mAtCeiling = false; //объект находится ли близко к потолку
 
     constructor(mPosition, mSpeed, mAABB, mScale) {//конструктор
         this.mPosition = mPosition;
