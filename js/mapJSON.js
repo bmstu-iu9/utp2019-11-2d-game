@@ -344,6 +344,7 @@ let spriteManager = { // объект для управления спрайта
         request.open("GET", atlasJson, true); // асинхронный запрос на разбор атласа
         request.send(); // отправили запрос
         this.loadImg(atlasIMG); // загрузка изображения
+        //console.log(100);
     },
 
     loadImg(imgName) { // загрузка изображения
@@ -371,6 +372,7 @@ let spriteManager = { // объект для управления спрайта
             }, 100)
         } else {
             let sprite = this.getSprite(name); // получить спрайт по имени
+            //console.log(sprite);
             if (!mapManager.isVisible(x, y, sprite.w, sprite.h))
                 return; // не рисуем за пределом видимой зоны
             // отображаем спрайт на холсте
