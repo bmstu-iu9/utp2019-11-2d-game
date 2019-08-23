@@ -384,6 +384,7 @@ let eventsManager = {
 
 //менеджер физики объектов
 class physicManager {
+    rightOfWay = [0, 862, 821, 780];
     move = null; //направление движения
     g = 1; //ускорение свободного падения
     powerJump = 10; //сила прыжка
@@ -509,7 +510,7 @@ class physicManager {
         */
 
         //console.log(tsDownLeft, tsDownRight);
-        if (tsDownLeft !== 0 || tsDownRight != 0) {
+        if (!this.find(this.rightOfWay, tsDownLeft) || !this.find(this.rightOfWay, tsDownRight)) {
             if (!this.mWasOnGround) //подумать
                 modY = mapManager.tSize.y - ((this.mAABB.center.y + this.mAABB.halfSize.y) % mapManager.tSize.y);
             else
@@ -522,7 +523,7 @@ class physicManager {
         }
 
         //console.log(tsRightDown, tsRightUp);
-        if (tsRightDown !== 0 || tsRightUp !== 0 || right > canvas.width) {
+        if (!this.find(this.rightOfWay, tsRightDown) || !this.find(this.rightOfWay, tsRightUp) || right > canvas.width) {
             if (!this.mPushedRightWall && (this.mAABB.center.x - this.mAABB.halfSize.x) !== canvas.width){
                 modX = mapManager.tSize.x - ((this.mAABB.center.x + this.mAABB.halfSize.x) % mapManager.tSize.x);
             } else
@@ -533,7 +534,7 @@ class physicManager {
         }
 
         //console.log(left);
-        if (tsLeftDown !== 0 || tsLeftUp !== 0 || left < 0) {
+        if (!this.find(this.rightOfWay, tsLeftDown) || !this.find(this.rightOfWay, tsLeftUp) || left < 0) {
             //console.log(!this.mPushedLeftWall, (this.mAABB.center.x - this.mAABB.halfSize.x));
             if (!this.mPushedLeftWall && (this.mAABB.center.x - this.mAABB.halfSize.x) !== 0){
                 modX = -((this.mAABB.center.x - this.mAABB.halfSize.x) % mapManager.tSize.x);
@@ -545,7 +546,7 @@ class physicManager {
         }
 
         //console.log(tsUpLeft, tsUpRight);
-        if (tsUpLeft !== 0 || tsUpRight !== 0){
+        if (!this.find(this.rightOfWay, tsUpLeft) || !this.find(this.rightOfWay, tsUpRight)){
             if (!this.mWasAtCeiling){
                 modY = -((center.y - halfSize.y) % mapManager.tSize.y);
             } else
@@ -562,6 +563,13 @@ class physicManager {
         this.mAABB.center.x += modX;
         this.mAABB.center.y += modY;
         return "move"; //двигаемся
+    };
+
+    find(array, elem) {
+        for (let i = 0; i < array.length; i++)
+            if (array[i] === elem)
+                return true;
+        return false;
     };
 
     entityAtXY(obj, x, y) {//определение столкновения объекта по заданным координатам
