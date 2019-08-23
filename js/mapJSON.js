@@ -321,7 +321,15 @@ let drawManager = { // объект для выбора кадра в прори
                         break;
                 }
                 break;
+            case "runRight":
+                switch (this.frame) {
+                    case 6:
+                        this.frame = 0;
+                        this.frame = '';
+                        break;
+                }
         }
+
     },
 
     getSpriteName() {
@@ -620,8 +628,10 @@ let physicManager = {
         } else if (modY < 0){
             //прыжок
         } else if (modX > 0){
+            return "runRight";
             //бег вправо
         } else if (modX < 0){
+            return "runLeft";
             //бег влево
         }
     },
