@@ -436,6 +436,7 @@ let eventsManager = {
 
 //менеджер физики объектов
 class physicManager {
+    rightOfWay = [0, 862, 821, 780];
     move = null; //направление движения
     g = 1; //ускорение свободного падения
     powerJump = 10; //сила прыжка
@@ -486,11 +487,18 @@ class physicManager {
         if (eventsManager.action['up']) {
             this.move.y = 1;
             if (this.mWasOnGround) {
-                this.mOnGround = false;
+                this.mSpeed.y = -this.powerJump;
             }
+            //if (this.mWasOnGround) { //подумать
+                //this.mOnGround = false;
+            //}
         }
-        if (eventsManager.action['left']) this.move.x = -1;
-        if (eventsManager.action['right']) this.move.x = 1;
+        if (eventsManager.action['left']){
+            this.move.x = -1;
+        }
+        if (eventsManager.action['right']){
+            this.move.x = 1;
+        }
     };
 
     //методы
@@ -515,15 +523,28 @@ class physicManager {
         let modX = Math.floor(this.move.x * this.mSpeed.x);
         let modY = Math.floor(this.move.y * this.mSpeed.y);
 
+        let center = this.mAABB.center;
+        let halfSize = this.mAABB.halfSize;
+
         //вычисляем грани хит бокса
-        let down = this.mAABB.center.y + this.mAABB.halfSize.y + modY; //низ
-        let right = this.mAABB.center.x + this.mAABB.halfSize.x + modX; //правый угол
-        let left = this.mAABB.center.x - this.mAABB.halfSize.x + modX; //левый угол
+        let up = center.y - halfSize.y + modY; //вверх
+        let down = center.y + halfSize.y + modY; //низ
+        let right = center.x + halfSize.x + modX; //правый угол
+        let left = center.x - halfSize.x + modX; //левый угол
 
         //анализ пространства на карте по направлению движения
-        let tsDown = mapManager.getTilesetIdx(this.mAABB.center.x, down);
-        let tsRight = mapManager.getTilesetIdx(right, this.mAABB.center.y);
-        let tsLeft = mapManager.getTilesetIdx(left, this.mAABB.center.y);
+        //let tsDown = mapManager.getTilesetIdx(this.mAABB.center.x, down);
+       // let tsRight = mapManager.getTilesetIdx(right, this.mAABB.center.y);
+       // let tsLeft = mapManager.getTilesetIdx(left, this.mAABB.center.y);
+
+        let tsRightUp = mapManager.getTilesetIdx(right, center.y - halfSize.y + mapManager.tSize.y);
+        let tsUpRight = mapManager.getTilesetIdx(center.x + halfSize.x - mapManager.tSize.x, up);
+        let tsUpLeft = mapManager.getTilesetIdx(center.x - halfSize.x + mapManager.tSize.x, up);
+        let tsLeftUp = mapManager.getTilesetIdx(left, center.y - halfSize.y + mapManager.tSize.y);
+        let tsLeftDown = mapManager.getTilesetIdx(left, center.y + halfSize.y - mapManager.tSize.y);
+        let tsDownLeft = mapManager.getTilesetIdx(center.x - halfSize.x + mapManager.tSize.x, down);
+        let tsDownRight = mapManager.getTilesetIdx(center.x + halfSize.x - mapManager.tSize.x, down);
+        let tsRightDown = mapManager.getTilesetIdx(right, halfSize.y + center.y - mapManager.tSize.y);
 
         //let e = this.entityAtXY(obj, newX, newY); //объект на пути
         /*
@@ -540,18 +561,52 @@ class physicManager {
         }
         */
 
-        if (tsDown !== 0) {
-            modY = 0;
-            this.mSpeed.y = -this.powerJump;
+        //console.log(tsDownLeft, tsDownRight);
+        if (!this.find(this.rightOfWay, tsDownLeft) || !this.find(this.rightOfWay, tsDownRight)) {
+            if (!this.mWasOnGround) //подумать
+                modY = mapManager.tSize.y - ((this.mAABB.center.y + this.mAABB.halfSize.y) % mapManager.tSize.y);
+            else
+                modY = 0;
+            this.mSpeed.y = 0;//-this.powerJump;
             this.mOnGround = true;
         } else {
             this.mSpeed.y += this.g;
+            this.mOnGround = false;
         }
-        if (tsRight !== 0) {
-            modX = 0;
+
+        //console.log(tsRightDown, tsRightUp);
+        if (!this.find(this.rightOfWay, tsRightDown) || !this.find(this.rightOfWay, tsRightUp) || right > canvas.width) {
+            if (!this.mPushedRightWall && (this.mAABB.center.x - this.mAABB.halfSize.x) !== canvas.width){
+                modX = mapManager.tSize.x - ((this.mAABB.center.x + this.mAABB.halfSize.x) % mapManager.tSize.x);
+            } else
+                modX = 0;
+            this.mPushesRightWall = true;
+        } else {
+            this.mPushesRightWall = false;
         }
-        if (tsLeft !== 0) {
-            modX = 0;
+
+        //console.log(left);
+        if (!this.find(this.rightOfWay, tsLeftDown) || !this.find(this.rightOfWay, tsLeftUp) || left < 0) {
+            //console.log(!this.mPushedLeftWall, (this.mAABB.center.x - this.mAABB.halfSize.x));
+            if (!this.mPushedLeftWall && (this.mAABB.center.x - this.mAABB.halfSize.x) !== 0){
+                modX = -((this.mAABB.center.x - this.mAABB.halfSize.x) % mapManager.tSize.x);
+            } else
+                modX = 0;
+            this.mPushesLeftWall = true;
+        } else {
+            this.mPushesLeftWall = false;
+        }
+
+        //console.log(tsUpLeft, tsUpRight);
+        if (!this.find(this.rightOfWay, tsUpLeft) || !this.find(this.rightOfWay, tsUpRight)){
+            if (!this.mWasAtCeiling){
+                modY = -((center.y - halfSize.y) % mapManager.tSize.y);
+            } else
+                modY = 0;
+            this.mSpeed.y = 0;
+            this.mAtCeiling = true;
+        } else {
+            this.mAtCeiling = false;
         }
 
         this.mPosition.x += modX;
@@ -560,6 +615,13 @@ class physicManager {
         this.mAABB.center.x += modX;
         this.mAABB.center.y += modY;
         return "move"; //двигаемся
+    };
+
+    find(array, elem) {
+        for (let i = 0; i < array.length; i++)
+            if (array[i] === elem)
+                return true;
+        return false;
     };
 
     entityAtXY(obj, x, y) {//определение столкновения объекта по заданным координатам
@@ -604,11 +666,11 @@ let gameManager = {
 
         //обновление информации по всем объектам на карте
         this.entities.forEach((e) => {
-            //try{ //защита от ошибок при выполнении update
-            e.update();
-            // } catch (ex) {
-            //  console.log(-1);
-            //}
+            try{ //защита от ошибок при выполнении update
+                e.update();
+             } catch (ex) {
+                console.log(-1);
+             }
         });
 
         //удаление всех объектов, попавших в laterKill
@@ -616,8 +678,7 @@ let gameManager = {
             let idx = this.entities.indexOf(this.laterKill[i]);
             if (idx > -1)
                 this.entities.splice(idx, 1); //удаление из массива 1 объекта
-        }
-        ;
+        };
 
         if (this.laterKill.length > 0) //очистка массива laterKill
             this.laterKill.length = 0;
