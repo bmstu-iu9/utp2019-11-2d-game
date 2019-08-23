@@ -252,14 +252,14 @@ class Player {
             new AABB(new Vector2(x + this.size_x / 2, y + this.size_y / 2),
                 new Vector2(this.size_x / 2, this.size_y / 2)),
             new Vector2(this.size_x, this.size_y));
-        this.drawManager = new drawManager;
+        this.drawManager = Object.create(drawManager);
         this.drawManager.state = 'idle';
         this.drawManager.frame = 0;
         this.drawManager.frameName = 'adventurer-idle-2-00'
     };
 
     draw(ctx) { // прорисовка игрока
-        spriteManager.drawSprite(ctx, this.drawManager.getSpriteName, this.pos_x, this.pos_y);
+        spriteManager.drawSprite(ctx, this.drawManager.getSpriteName(), this.pos_x, this.pos_y);
         spriteManager.drawHitBox(ctx, this.physicManager.mAABB);
     };
 
