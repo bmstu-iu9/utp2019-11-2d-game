@@ -234,20 +234,21 @@ let mapManager = {
     //-----------------------------------------------------------------------------------------------------------------------
 };
 
-class Player {
-    pos_x = 50;
-    pos_y = 60; // позиция игрока
-    size_x = 50;
-    size_y = 37; // размеры игрока
+let Player = {
+    pos_x: 50,
+    pos_y: 60, // позиция игрока
+    size_x: 50,
+    size_y: 37, // размеры игрока
     //lifetime = 100; // показатели здоровья
     //move_x: 0, move_y: 0, // направление движения
     //speed: 10, // скорость объекта
     //hitBox: null,
-    physicManager = null;
-    drawManager = null;
+    physicManager: null,
+    drawManager: null,
 
     constructor(x, y, speed) {
-        this.physicManager = new physicManager(new Vector2(x, y),
+        this.physicManager = Object.create(physicManager);
+        this.physicManager.constructor(new Vector2(x, y),
             speed,
             new AABB(new Vector2(x + this.size_x / 2, y + this.size_y / 2),
                 new Vector2(this.size_x / 2, this.size_y / 2)),
@@ -256,12 +257,12 @@ class Player {
         this.drawManager.state = 'idle';
         this.drawManager.frame = 0;
         this.drawManager.frameName = 'adventurer-idle-2-00'
-    };
+    },
 
     draw(ctx) { // прорисовка игрока
         spriteManager.drawSprite(ctx, this.drawManager.getSpriteName(), this.pos_x, this.pos_y);
         spriteManager.drawHitBox(ctx, this.physicManager.mAABB);
-    };
+    },
 
     update() { // обновление в цикле
         if (mapManager.loadLayer) {
@@ -270,7 +271,7 @@ class Player {
         }
         this.pos_x = this.physicManager.mPosition.x;
         this.pos_y = this.physicManager.mPosition.y;
-    };
+    },
 
     /*
         onTouchEntity(obj) { // обработка встречи с препядствием
@@ -435,38 +436,38 @@ let eventsManager = {
 };
 
 //менеджер физики объектов
-class physicManager {
-    rightOfWay = [0, 862, 821, 780];
-    move = null; //направление движения
-    g = 1; //ускорение свободного падения
-    powerJump = 10; //сила прыжка
+let physicManager = {
+    rightOfWay: [0, 862, 821, 780],
+    move: null, //направление движения
+    g: 1, //ускорение свободного падения
+    powerJump: 10, //сила прыжка
 
-    mOldPosition = null; //положение на предыдущем кадре
-    mPosition = null; //текущее положение
+    mOldPosition: null, //положение на предыдущем кадре
+    mPosition: null, //текущее положение
 
-    mOldSpeed = null; //скорость предыдущем кадре
-    mSpeed = null; //текущая скорость
+    mOldSpeed: null, //скорость предыдущем кадре
+    mSpeed: null, //текущая скорость
 
-    mScale = null; //масштаб
+    mScale: null, //масштаб
 
-    mAABB = null; //хит бокс
+    mAABB: null, //хит бокс
     //mAABBOffset = null; //смещение хит бокса
 
     //стена справа
-    mPushedRightWall = false; //находился ли объект близко к ней последний кадр
-    mPushesRightWall = false; //объект находится ли близко к стене
+    mPushedRightWall: false, //находился ли объект близко к ней последний кадр
+    mPushesRightWall: false, //объект находится ли близко к стене
 
     //стена слева
-    mPushedLeftWall = false; //находился ли объект близко к ней последний кадр
-    mPushesLeftWall = false; //объект находится ли близко к стене
+    mPushedLeftWall: false, //находился ли объект близко к ней последний кадр
+    mPushesLeftWall: false, //объект находится ли близко к стене
 
     //пол
-    mWasOnGround = false; //находился ли объект близко к полу последний кадр
-    mOnGround = false; //объект находится ли близко к полу
+    mWasOnGround: false, //находился ли объект близко к полу последний кадр
+    mOnGround: false, //объект находится ли близко к полу
 
     //поталок
-    mWasAtCeiling = false; //находился ли объект близко к потолку последний кадр
-    mAtCeiling = false; //объект находится ли близко к потолку
+    mWasAtCeiling: false, //находился ли объект близко к потолку последний кадр
+    mAtCeiling: false, //объект находится ли близко к потолку
 
     constructor(mPosition, mSpeed, mAABB, mScale) {//конструктор
         this.mPosition = mPosition;
@@ -476,7 +477,7 @@ class physicManager {
         this.move = new Vector2(0, 0);
         this.mOldPosition = new Vector2(0, 0);
         this.mOldSpeed = new Vector2(0, 0);
-    };
+    },
 
     setMove() {
         //по умолчанию игрок никуда не двигается
@@ -499,7 +500,7 @@ class physicManager {
         if (eventsManager.action['right']){
             this.move.x = 1;
         }
-    };
+    },
 
     //методы
     update() {//обновление состояния объекта
@@ -623,14 +624,14 @@ class physicManager {
         } else if (modX < 0){
             //бег влево
         }
-    };
+    },
 
     find(array, elem) {
         for (let i = 0; i < array.length; i++)
             if (array[i] === elem)
                 return true;
         return false;
-    };
+    },
 
     entityAtXY(obj, x, y) {//определение столкновения объекта по заданным координатам
         for (let i = 0; i < gameManager.entities.length; i++) {
@@ -645,7 +646,7 @@ class physicManager {
             }
         }
         return null; //объект не найден
-    };
+    }
 };
 
 //менеджер игры
@@ -655,7 +656,8 @@ let gameManager = {
     player: null, //указатель на объект игрока
     laterKill: [], //отложенное уничтожение объектов
     initPlayer() { //инициализация игрока
-        this.player = new Player(50, 60, 10);
+        this.player = Object.create(Player);
+        this.player.constructor(50, 60, 10)
     },
     kill(obj) {
         this.laterKill.push(obj);
