@@ -614,7 +614,15 @@ class physicManager {
 
         this.mAABB.center.x += modX;
         this.mAABB.center.y += modY;
-        return "move"; //двигаемся
+        if (modX === 0 && modY === 0){
+            return "idle";
+        } else if (modY < 0){
+            //прыжок
+        } else if (modX > 0){
+            //бег вправо
+        } else if (modX < 0){
+            //бег влево
+        }
     };
 
     find(array, elem) {
