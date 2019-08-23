@@ -259,7 +259,6 @@ class Player {
     };
 
     draw(ctx) { // прорисовка игрока
-        console.log(this.drawManager.getSpriteName());
         spriteManager.drawSprite(ctx, this.drawManager.getSpriteName(), this.pos_x, this.pos_y);
         spriteManager.drawHitBox(ctx, this.physicManager.mAABB);
     };
