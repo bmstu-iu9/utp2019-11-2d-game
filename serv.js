@@ -40,4 +40,6 @@ http.createServer(function(request, response){
             };
         }
     });
-}).listen(3000, '127.0.0.1');
+}).listen(3000, 'localhost', ()=>{
+    console.log("Server is running!");
+});
