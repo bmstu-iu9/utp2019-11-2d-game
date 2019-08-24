@@ -14,8 +14,8 @@ http.createServer(function(request, response){
     fs.access(path, fs.constants.R_OK, err => {
         // если произошла ошибка - отправляем статусный код 404
         if(err){
-            response.statusCode = 404;
-            response.end("Resourse not found!");
+            response.writeHead(200, {'Content-Type': 'text/html'});
+            fs.createReadStream(__dirname + "/404.html").pipe(response);
         }
         else{
             switch (extension) {
