@@ -29,7 +29,8 @@ export let Player = {
         this.drawManager = Object.create(drawManager);
         this.drawManager.state = 'idle';
         this.drawManager.frame = 0;
-        this.drawManager.frameName = 'adventurer-idle-2-00'
+        this.drawManager.frameName = 'adventurer-idle-2-00';
+        this.drawManager.direction = false;
     },
 
     draw(ctx) { // прорисовка игрока
