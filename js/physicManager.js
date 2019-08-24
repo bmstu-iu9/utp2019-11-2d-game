@@ -189,22 +189,22 @@ export let physicManager = {
 
         if (modX === 0 && modY === 0){
             return "idle";
-        } else if (modY > 0 && modX > 0){
+        } else if (modY < 0 && modX > 0){
             return "jumpRight";
             //прыжок вправо
-        } else if (modY > 0 && modX < 0){
+        } else if (modY < 0 && modX < 0){
             return "jumpLeft";
             //прыжок влево
-        } else if (modY > 0 && modX === 0){
+        } else if (modY < 0 && modX === 0){
             return "jump";
             //прыжок
-        } else if (modY < 0 && modX > 0){
+        } else if (modY > 0 && modX > 0){
             return "fallRight";
             //падение вправо
-        } else if (modY < 0 && modX < 0){
+        } else if (modY > 0 && modX < 0){
             return "fallLeft";
             //падение влево
-        } else if (modY < 0 && modX === 0){
+        } else if (modY > 0 && modX === 0){
             return "fall";
             //падение
         } else if (modY === 0 && modX > 0){

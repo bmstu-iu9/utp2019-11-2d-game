@@ -71,14 +71,10 @@ export let drawManager = { // объект для выбора кадра в п�
             } else if (this.state === "jumpRight" || this.state === "jumpLeft" || this.state === "jump") {
                 if (this.state === "jumpRight") {
                     this.direction = false;
-                } else {
+                } else if (this.state === "jumpLeft") {
                     this.direction = true;
                 }
                 switch (this.frame) {
-                    case 3:
-                        this.frame = 0;
-                        this.frameName = 'adventurer-jump-00';
-                        break;
                     case 0:
                         this.frame++;
                         this.frameName = 'adventurer-jump-01';
@@ -95,7 +91,7 @@ export let drawManager = { // объект для выбора кадра в п�
             } else if (this.state === "fallRight" || this.state ===  "fallLeft" || this.state ===  "fall") {
                 if (this.state === "fallRight") {
                     this.direction = false;
-                } else {
+                } else if (this.state ===  "fallLeft") {
                     this.direction = true;
                 }
                 switch (this.frame) {
