@@ -9,7 +9,7 @@ http.createServer(function(request, response){
     const extension = url.substr(url.indexOf('.', 1) + 1);
     const path = __dirname + url;
 
-    console.log(extension);
+    //console.log(extension);
 
     fs.access(path, fs.constants.R_OK, err => {
         // если произошла ошибка - отправляем статусный код 404

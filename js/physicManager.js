@@ -8,7 +8,7 @@ import {canvas} from "./index.js";
 
 //менеджер физики объектов
 export let physicManager = {
-    rightOfWay: [0, 862, 821, 780],
+    rightOfWay: [0, 862, 821, 780, 771, 812, 813, 772, 815, 774, 821, 892, 1026, 1031],
     move: null, //направление движения
     g: 1, //ускорение свободного падения
     powerJump: 10, //сила прыжка
@@ -146,7 +146,7 @@ export let physicManager = {
             this.mOnGround = false;
         }
 
-        //console.log(tsRightDown, tsRightUp);
+        //console.log(tsLeftDown, tsLeftUp);
         if (!this.find(this.rightOfWay, tsRightDown) || !this.find(this.rightOfWay, tsRightUp) || right > canvas.width) {
             if (!this.mPushedRightWall && (this.mAABB.center.x - this.mAABB.halfSize.x) !== canvas.width){
                 modX = mapManager.tSize.x - ((this.mAABB.center.x + this.mAABB.halfSize.x) % mapManager.tSize.x);
