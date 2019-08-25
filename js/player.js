@@ -8,8 +8,8 @@ import {spriteManager} from './spriteManager.js';
 import {mapManager} from './mapManager.js';
 
 export let Player = {
-    pos_x: 50,
-    pos_y: 60, // позиция игрока
+    //pos_x: 50,
+    //pos_y: 60, // позиция игрока
     size_x: 50,
     size_y: 37, // размеры игрока
     //lifetime = 100; // показатели здоровья
@@ -19,18 +19,19 @@ export let Player = {
     physicManager: null,
     drawManager: null,
 
-    constructor(x, y, speed) {
-        this.physicManager = Object.create(physicManager);
-        this.physicManager.constructor(new Vector2(x, y),
+    createObject(x, y, speed, key, name) {
+        let newObj = Object.create(this);
+        newObj.physicManager = physicManager.createObject(new Vector2(x, y),
             speed,
             new AABB(new Vector2(x + this.size_x / 2, y + this.size_y / 2),
                 new Vector2(this.size_x / 2, this.size_y / 2)),
-            new Vector2(this.size_x, this.size_y));
-        this.drawManager = Object.create(drawManager);
-        this.drawManager.state = 'idle';
-        this.drawManager.frame = 0;
-        this.drawManager.frameName = 'adventurer-idle-2-00';
-        this.drawManager.direction = false;
+            new Vector2(this.size_x, this.size_y), key, name);
+        newObj.drawManager = Object.create(drawManager);
+        newObj.drawManager.state = 'idle';
+        newObj.drawManager.frame = 0;
+        newObj.drawManager.frameName = 'adventurer-idle-2-00';
+        newObj.drawManager.direction = false;
+        return newObj;
     },
 
     draw(ctx) { // прорисовка игрока

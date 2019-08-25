@@ -10,11 +10,19 @@ import {ctx} from "./index.js";
 export let gameManager = {
     factory: {}, //фабрика объектов на карте
     entities: [], //объекты на карте
-    player: null, //указатель на объект игрока
+    player: [], //указатель на объект игрока
     laterKill: [], //отложенное уничтожение объектов
     initPlayer() { //инициализация игрока
-        this.player = Object.create(Player);
-        this.player.constructor(50, 60, 10)
+        this.player[0] = Player.createObject(50, 60, 10, {
+            up: "up0",
+            left: "left0",
+            right: "right0",
+        }, 'player1');
+        this.player[1] = Player.createObject(100 , 100, 10,{
+            up: "up1",
+            left: "left1",
+            right: "right1",
+        }, 'player2');
     },
     kill(obj) {
         this.laterKill.push(obj);
@@ -58,8 +66,10 @@ export let gameManager = {
         mapManager.loadMap("maps/tilemap.json");
         spriteManager.loadAtlas("maps/sprites.json", "maps/spritesheet.png");
         gameManager.initPlayer();
-        gameManager.factory['Player'] = this.player;
-        gameManager.entities.push(gameManager.factory['Player']);
+        gameManager.factory['Player0'] = this.player[0];
+        gameManager.factory['Player1'] = this.player[1];
+        gameManager.entities.push(gameManager.factory['Player0']);
+        gameManager.entities.push(gameManager.factory['Player1']);
         //mapManager.parseEntities();
         eventsManager.setup();
     },
