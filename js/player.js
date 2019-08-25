@@ -19,13 +19,13 @@ export let Player = {
     physicManager: null,
     drawManager: null,
 
-    createObject(x, y, speed, key) {
+    createObject(x, y, speed, key, name) {
         let newObj = Object.create(this);
         newObj.physicManager = physicManager.createObject(new Vector2(x, y),
             speed,
             new AABB(new Vector2(x + this.size_x / 2, y + this.size_y / 2),
                 new Vector2(this.size_x / 2, this.size_y / 2)),
-            new Vector2(this.size_x, this.size_y), key);
+            new Vector2(this.size_x, this.size_y), key, name);
         newObj.drawManager = Object.create(drawManager);
         newObj.drawManager.state = 'idle';
         newObj.drawManager.frame = 0;

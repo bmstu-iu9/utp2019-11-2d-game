@@ -17,12 +17,12 @@ export let gameManager = {
             up: "up0",
             left: "left0",
             right: "right0",
-        });
+        }, 'player1');
         this.player[1] = Player.createObject(100 , 100, 10,{
             up: "up1",
             left: "left1",
             right: "right1",
-        });
+        }, 'player2');
     },
     kill(obj) {
         this.laterKill.push(obj);

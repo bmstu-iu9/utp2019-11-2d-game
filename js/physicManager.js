@@ -14,7 +14,7 @@ export let physicManager = {
 
 
 
-    createObject(mPosition, mSpeed, mAABB, mScale, key) {//конструктор
+    createObject(mPosition, mSpeed, mAABB, mScale, key, name) {//конструктор
         let newObj = Object.create(this);
         newObj.mOldPosition = null; //положение на предыдущем кадре
         newObj.mPosition = null; //текущее положение
@@ -49,6 +49,7 @@ export let physicManager = {
         newObj.mOldPosition = new Vector2(0, 0);
         newObj.mOldSpeed = new Vector2(0, 0);
         newObj.key = key;
+        newObj.name = name;
         return newObj;
     },
 
@@ -189,6 +190,7 @@ export let physicManager = {
         this.mAABB.center.x += modX;
         this.mAABB.center.y += modY;
 
+        this.entityAtXY();
         if (modX === 0 && modY === 0){
             return "idle";
         } else if (modY < 0 && modX > 0){
@@ -225,18 +227,12 @@ export let physicManager = {
         return false;
     },
 
-    entityAtXY(obj, x, y) {//определение столкновения объекта по заданным координатам
+    entityAtXY() {//определение столкновения объекта по заданным координатам
         for (let i = 0; i < gameManager.entities.length; i++) {
             let e = gameManager.entities[i]; //все объекты карты
-            if (e.name !== obj.name) { //имя не совпадает (имена уникальны)
-                if (x + obj.size_x < e.pos_x || //не пересекаются
-                    y + obj.size_y < e.pos_y ||
-                    x > e.pos_x + e.size_x ||
-                    y > e.pos_y + e.size_y)
-                    continue;
-                return e; //найден объект
-            }
+            //console.log(e.physicManager.name);
+            if (e.physicManager.name !== this.name && this.mAABB.overlaps(e.physicManager.mAABB))
+                console.log(1);
         }
-        return null; //объект не найден
     }
 };

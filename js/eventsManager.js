@@ -23,7 +23,7 @@ export let eventsManager = {
 
     keyDown(event) { //нажатие клавиши
         let action = eventsManager.bind[event.code]; //получаем действие по коду клавиши
-        console.log(event.code);
+        //console.log(event.code);
         if (action) {
             eventsManager.action[action] = true; //согласились выполнить действие
 
