@@ -9,45 +9,47 @@ import {canvas} from "./index.js";
 //менеджер физики объектов
 export let physicManager = {
     rightOfWay: [0, 862, 821, 780, 771, 812, 813, 772, 815, 774, 821, 892, 1026, 1031],
-    move: null, //направление движения
     g: 1, //ускорение свободного падения
     powerJump: 10, //сила прыжка
 
-    mOldPosition: null, //положение на предыдущем кадре
-    mPosition: null, //текущее положение
 
-    mOldSpeed: null, //скорость предыдущем кадре
-    mSpeed: null, //текущая скорость
 
-    mScale: null, //масштаб
+    createObject(mPosition, mSpeed, mAABB, mScale, key) {//конструктор
+        let newObj = Object.create(this);
+        newObj.mOldPosition = null; //положение на предыдущем кадре
+        newObj.mPosition = null; //текущее положение
+        newObj.mOldSpeed = null; //скорость предыдущем кадре
+        newObj.mSpeed = null; //текущая скорость
+        newObj.move = null; //направление движения
+        newObj.mScale = null; //масштаб
 
-    mAABB: null, //хит бокс
-    //mAABBOffset = null; //смещение хит бокса
+        newObj.mAABB = null; //хит бокс
+        //mAABBOffset = null; //смещение хит бокса
 
-    //стена справа
-    mPushedRightWall: false, //находился ли объект близко к ней последний кадр
-    mPushesRightWall: false, //объект находится ли близко к стене
+        //стена справа
+        newObj.mPushedRightWall = false; //находился ли объект близко к ней последний кадр
+        newObj.mPushesRightWall = false; //объект находится ли близко к стене
 
-    //стена слева
-    mPushedLeftWall: false, //находился ли объект близко к ней последний кадр
-    mPushesLeftWall: false, //объект находится ли близко к стене
+            //стена слева
+        newObj.mPushedLeftWall = false; //находился ли объект близко к ней последний кадр
+        newObj.mPushesLeftWall = false; //объект находится ли близко к стене
 
-    //пол
-    mWasOnGround: false, //находился ли объект близко к полу последний кадр
-    mOnGround: false, //объект находится ли близко к полу
+        //пол
+        newObj.mWasOnGround = false; //находился ли объект близко к полу последний кадр
+        newObj.mOnGround = false; //объект находится ли близко к полу
 
-    //поталок
-    mWasAtCeiling: false, //находился ли объект близко к потолку последний кадр
-    mAtCeiling: false, //объект находится ли близко к потолку
-
-    constructor(mPosition, mSpeed, mAABB, mScale) {//конструктор
-        this.mPosition = mPosition;
-        this.mSpeed = new Vector2(mSpeed, 0);
-        this.mAABB = mAABB;
-        this.mScale = mScale
-        this.move = new Vector2(0, 0);
-        this.mOldPosition = new Vector2(0, 0);
-        this.mOldSpeed = new Vector2(0, 0);
+        //поталок
+        newObj.mWasAtCeiling = false; //находился ли объект близко к потолку последний кадр
+        newObj.mAtCeiling = false; //объект находится ли близко к потолку
+        newObj.mPosition = mPosition;
+        newObj.mSpeed = new Vector2(mSpeed, 0);
+        newObj.mAABB = mAABB;
+        newObj.mScale = mScale
+        newObj.move = new Vector2(0, 0);
+        newObj.mOldPosition = new Vector2(0, 0);
+        newObj.mOldSpeed = new Vector2(0, 0);
+        newObj.key = key;
+        return newObj;
     },
 
     setMove() {
@@ -56,7 +58,7 @@ export let physicManager = {
         this.move.y = 0;
 
         //поймали событие обрабатываем
-        if (eventsManager.action['up']) {
+        if (eventsManager.action[this.key['up']]) {
             this.move.y = 1;
             if (this.mWasOnGround) {
                 this.mSpeed.y = -this.powerJump;
@@ -65,10 +67,10 @@ export let physicManager = {
             //this.mOnGround = false;
             //}
         }
-        if (eventsManager.action['left']){
+        if (eventsManager.action[this.key['left']]){
             this.move.x = -1;
         }
-        if (eventsManager.action['right']){
+        if (eventsManager.action[this.key['right']]){
             this.move.x = 1;
         }
     },
