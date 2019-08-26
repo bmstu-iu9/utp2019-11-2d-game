@@ -14,7 +14,7 @@ export let physicManager = {
 
 
 
-    createObject(mPosition, mSpeed, mAABB, mScale, key, name) {//конструктор
+    createObject(mPosition, mSpeed, mAABB, mScale, key) {//конструктор
         let newObj = Object.create(this);
         newObj.mOldPosition = null; //положение на предыдущем кадре
         newObj.mPosition = null; //текущее положение
@@ -49,7 +49,7 @@ export let physicManager = {
         newObj.mOldPosition = new Vector2(0, 0);
         newObj.mOldSpeed = new Vector2(0, 0);
         newObj.key = key;
-        newObj.name = name;
+        //newObj.name = name;
         return newObj;
     },
 
@@ -77,7 +77,7 @@ export let physicManager = {
     },
 
     //методы
-    update() {//обновление состояния объекта
+    update(name) {//обновление состояния объекта
         //сохраняем предыдущие значения
         this.mOldPosition.copy(this.mPosition);
         this.mOldSpeed.copy(this.mSpeed);
@@ -190,7 +190,11 @@ export let physicManager = {
         this.mAABB.center.x += modX;
         this.mAABB.center.y += modY;
 
-        this.entityAtXY();
+        if (eventsManager.action[this.key['attack']]){
+            this.entityAtXY(name);
+            eventsManager.action[this.key['attack']] = false;
+        }
+
         if (modX === 0 && modY === 0){
             return "idle";
         } else if (modY < 0 && modX > 0){
@@ -227,12 +231,15 @@ export let physicManager = {
         return false;
     },
 
-    entityAtXY() {//определение столкновения объекта по заданным координатам
+    entityAtXY(name) {//определение столкновения объекта по заданным координатам
         for (let i = 0; i < gameManager.entities.length; i++) {
             let e = gameManager.entities[i]; //все объекты карты
             //console.log(e.physicManager.name);
-            if (e.physicManager.name !== this.name && this.mAABB.overlaps(e.physicManager.mAABB))
-                console.log(1);
+            if (e.name !== name && this.mAABB.overlaps(e.physicManager.mAABB)) {
+                e.life--;
+                //console.log(name);
+                //console.log(e.name, e.life);
+            }
         }
     }
 };
