@@ -4,7 +4,7 @@ import {spriteManager} from './spriteManager.js';
 import {mapManager} from './mapManager.js';
 import {eventsManager} from './eventsManager.js';
 import {Player} from './player.js';
-import {ctx} from "./index.js";
+import {ctx, div} from "./index.js";
 
 //менеджер игры
 export let gameManager = {
@@ -44,6 +44,7 @@ export let gameManager = {
         //this.player.setMove();
 
         //обновление информации по всем объектам на карте
+        let code = "";
         this.entities.forEach((e) => {
             try{ //защита от ошибок при выполнении update
                 e.update();
@@ -56,10 +57,16 @@ export let gameManager = {
                         gameManager.play();
                     }
                 }
+                code += '<p>' + e.name + " " + e.life + '</p>';
             } catch (ex) {
                 console.log(-1);
             }
         });
+
+        //console.log(code);
+        div.innerHTML = code;
+        //div.remove(
+        document.body.append(div);
 
         //удаление всех объектов, попавших в laterKill
         for (let i = 0; i < this.laterKill.length; i++) {
