@@ -238,7 +238,7 @@ export let physicManager = {
             if (e.name !== name && this.mAABB.overlaps(e.physicManager.mAABB)) {
                 e.life--;
                 //console.log(name);
-                console.log(e.name, e.life);
+                //console.log(e.name, e.life);
             }
         }
     }

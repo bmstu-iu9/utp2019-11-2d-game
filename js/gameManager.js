@@ -12,19 +12,21 @@ export let gameManager = {
     entities: [], //объекты на карте
     player: [], //указатель на объект игрока
     laterKill: [], //отложенное уничтожение объектов
+    timeId: null,
+
     initPlayer() { //инициализация игрока
         this.player[0] = Player.createObject(50, 60, 10, {
             up: "up0",
             left: "left0",
             right: "right0",
             attack: "attack0"
-        }, 'player0', 100);
+        }, 'player0', 3);
         this.player[1] = Player.createObject(100 , 100, 10,{
             up: "up1",
             left: "left1",
             right: "right1",
             attack: "attack1"
-        }, 'player1', 100);
+        }, 'player1', 3);
     },
     kill(obj) {
         this.laterKill.push(obj);
@@ -46,7 +48,13 @@ export let gameManager = {
             try{ //защита от ошибок при выполнении update
                 e.update();
                 if (e.life === 0){
-                    alert("Проиграл: " + e.name);
+                    clearInterval(this.timeId);
+                    if (confirm("Проиграл: " + e.name)) {
+                        console.log(1);
+                        gameManager.entities.length = 0;
+                        gameManager.initPlayer();
+                        gameManager.play();
+                    }
                 }
             } catch (ex) {
                 console.log(-1);
@@ -71,10 +79,6 @@ export let gameManager = {
         mapManager.loadMap("maps/tilemap.json");
         spriteManager.loadAtlas("maps/sprites.json", "maps/spritesheet.png");
         gameManager.initPlayer();
-        gameManager.factory['Player0'] = this.player[0];
-        gameManager.factory['Player1'] = this.player[1];
-        gameManager.entities.push(gameManager.factory['Player0']);
-        gameManager.entities.push(gameManager.factory['Player1']);
         //mapManager.parseEntities();
         eventsManager.setup();
     },
@@ -84,6 +88,10 @@ export let gameManager = {
     },
 
     play() {
-        setInterval(this.updateWorld, 100);
+        gameManager.factory['Player0'] = this.player[0];
+        gameManager.factory['Player1'] = this.player[1];
+        gameManager.entities.push(gameManager.factory['Player0']);
+        gameManager.entities.push(gameManager.factory['Player1']);
+        this.timeId = setInterval(this.updateWorld, 100);
     }
 };
