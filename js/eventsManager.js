@@ -15,6 +15,8 @@ export let eventsManager = {
         this.bind['Enter'] = "up1";
         this.bind['ArrowLeft'] = "left1";
         this.bind['ArrowRight'] = "right1";
+        this.bind['ShiftRight'] = "attack1";
+        this.bind['ShiftLeft'] = "attack0";
 
         //настраиваем обработчик
         document.body.addEventListener("keydown", this.keyDown);
@@ -23,7 +25,7 @@ export let eventsManager = {
 
     keyDown(event) { //нажатие клавиши
         let action = eventsManager.bind[event.code]; //получаем действие по коду клавиши
-        //console.log(event.code);
+        console.log(event.code);
         if (action) {
             eventsManager.action[action] = true; //согласились выполнить действие
 
@@ -31,11 +33,13 @@ export let eventsManager = {
     },
 
     keyUp(event) { //отпустили клавишу
-        let action = eventsManager.bind[event.code]; //получаем действие по коду клавиши
+        if (eventsManager.bind[event.code] !== 'attack1' && eventsManager.bind[event.code] !== 'attack0') {
+            let action = eventsManager.bind[event.code]; //получаем действие по коду клавиши
 
-        if (action) {
-            eventsManager.action[action] = false; //согласились выполнить действие
+            if (action) {
+                eventsManager.action[action] = false; //согласились выполнить действие
 
+            }
         }
     }
 

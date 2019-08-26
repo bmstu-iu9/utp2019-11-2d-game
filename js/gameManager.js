@@ -17,12 +17,14 @@ export let gameManager = {
             up: "up0",
             left: "left0",
             right: "right0",
-        }, 'player1');
+            attack: "attack0"
+        }, 'player0', 100);
         this.player[1] = Player.createObject(100 , 100, 10,{
             up: "up1",
             left: "left1",
             right: "right1",
-        }, 'player2');
+            attack: "attack1"
+        }, 'player1', 100);
     },
     kill(obj) {
         this.laterKill.push(obj);
@@ -43,6 +45,9 @@ export let gameManager = {
         this.entities.forEach((e) => {
             try{ //защита от ошибок при выполнении update
                 e.update();
+                if (e.life === 0){
+                    alert("Проиграл: " + e.name);
+                }
             } catch (ex) {
                 console.log(-1);
             }
