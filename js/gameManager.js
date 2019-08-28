@@ -13,7 +13,11 @@ export let gameManager = {
     player: [], //указатель на объект игрока
     laterKill: [], //отложенное уничтожение объектов
     timeId: null,
-
+    playAudio(){
+        var audio = new Audio("music/music.mp3");
+        audio.autoplay = true;
+        audio.load();
+    },
     initPlayer() { //инициализация игрока
         this.player[0] = Player.createObject(50, 60, 10, {
             up: "up0",
@@ -21,7 +25,7 @@ export let gameManager = {
             right: "right0",
             attack: "attack0"
         }, 'player0', 3);
-        this.player[1] = Player.createObject(100 , 100, 10,{
+        this.player[1] = Player.createObject(1100 , 100, 10,{
             up: "up1",
             left: "left1",
             right: "right1",

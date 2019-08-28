@@ -10,5 +10,5 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 gameManager.loadAll();
-
+gameManager.playAudio();
 gameManager.play();
