@@ -37,7 +37,7 @@ export let Player = {
         } else {
             newObj.drawManager.frameName = 'adventurer-idle-2-00-mirror';
         }
-        newObj.drawManager.direction = false;
+        newObj.drawManager.direction = direction;
         newObj.life = life;
         newObj.name = name;
         return newObj;

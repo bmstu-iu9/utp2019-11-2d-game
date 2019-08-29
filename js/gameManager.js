@@ -15,13 +15,13 @@ export let gameManager = {
     timeId: null,
 
     initPlayer() { //инициализация игрока
-        this.player[0] = Player.createObject(50, 60, 10, {
+        this.player[0] = Player.createObject(310, 160, 10, {
             up: "up0",
             left: "left0",
             right: "right0",
             attack: "attack0"
         }, 'player0', 20, false);
-        this.player[1] = Player.createObject(100 , 100, 10,{
+        this.player[1] = Player.createObject(952, 160, 10,{
             up: "up1",
             left: "left1",
             right: "right1",
