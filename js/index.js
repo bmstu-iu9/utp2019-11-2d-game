@@ -9,6 +9,22 @@ export let div = document.createElement('div');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+let audio = new Audio('music/music.mp3');
+
+audio.canplay = () => {
+    console.log("я готова");
+}
+
+audio.abort = () => {
+    console.log("я не готова");
+}
+
+audio.progress = () => {
+    console.log("Начинаю");
+}
+
+console.log(audio.canPlayType('audio/mpeg'));
+
 gameManager.loadAll();
-gameManager.playAudio();
+//gameManager.playAudio();
 gameManager.play();

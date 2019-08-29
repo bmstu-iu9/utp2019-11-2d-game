@@ -14,7 +14,7 @@ export let gameManager = {
     laterKill: [], //отложенное уничтожение объектов
     timeId: null,
     playAudio(){
-        var audio = new Audio("music/music.mp3");
+        let audio = new Audio("music/music.mp3");
         audio.autoplay = true;
         audio.load();
     },
