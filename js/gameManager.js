@@ -20,13 +20,13 @@ export let gameManager = {
             left: "left0",
             right: "right0",
             attack: "attack0"
-        }, 'player0', 3);
+        }, 'player0', 20, false);
         this.player[1] = Player.createObject(100 , 100, 10,{
             up: "up1",
             left: "left1",
             right: "right1",
             attack: "attack1"
-        }, 'player1', 3);
+        }, 'player1', 20, true);
     },
     kill(obj) {
         this.laterKill.push(obj);

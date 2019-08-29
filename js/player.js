@@ -19,17 +19,24 @@ export let Player = {
     physicManager: null,
     drawManager: null,
 
-    createObject(x, y, speed, key, name, life) {
+    createObject(x, y, speed, key, name, life, direction) {
         let newObj = Object.create(this);
         newObj.physicManager = physicManager.createObject(new Vector2(x, y),
             speed,
             new AABB(new Vector2(x + this.size_x / 2, y + this.size_y / 2),
                 new Vector2(this.size_x / 2, this.size_y / 2)),
-            new Vector2(this.size_x, this.size_y), key);
+            new AABB(new Vector2(x + this.size_x / 2, y + this.size_y / 2),
+                new Vector2(this.size_x / 2, this.size_y / 2)),
+            new Vector2(this.size_x, this.size_y), key, direction);
+
         newObj.drawManager = Object.create(drawManager);
         newObj.drawManager.state = 'idle';
         newObj.drawManager.frame = 0;
-        newObj.drawManager.frameName = 'adventurer-idle-2-00';
+        if (!direction) {
+            newObj.drawManager.frameName = 'adventurer-idle-2-00';
+        } else {
+            newObj.drawManager.frameName = 'adventurer-idle-2-00-mirror';
+        }
         newObj.drawManager.direction = false;
         newObj.life = life;
         newObj.name = name;
