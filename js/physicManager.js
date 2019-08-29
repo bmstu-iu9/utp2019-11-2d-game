@@ -219,9 +219,9 @@ export let physicManager = {
             if (this.stun === 1) {
                 this.attack = true;
                 if (!this.direction) {
-                    this.weaponAABB.center.x += 37;
+                    this.weaponAABB.center.x += 15;
                 } else {
-                    this.weaponAABB.center.x -= 37;
+                    this.weaponAABB.center.x -= 15;
                 }
             }
             if (this.stun === 5) {
