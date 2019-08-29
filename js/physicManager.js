@@ -205,8 +205,8 @@ export let physicManager = {
 
         this.mAABB.center.x += modX;
         this.mAABB.center.y += modY;
-        this.weaponAABB.x += modX;
-        this.weaponAABB.y += modY;
+        this.weaponAABB.center.x += modX;
+        this.weaponAABB.center.y += modY;
 
         if (modX > 0) {
             this.direction = false;
@@ -219,15 +219,15 @@ export let physicManager = {
             if (this.stun === 1) {
                 this.attack = true;
                 if (!this.direction) {
-                    this.weaponAABB.center += 37;
+                    this.weaponAABB.center.x += 37;
                 } else {
-                    this.weaponAABB.center -= 37;
+                    this.weaponAABB.center.x -= 37;
                 }
             }
             if (this.stun === 5) {
                 this.stun = 0;
                 this.attack = false;
-                this.weaponAABB.center = this.mAABB.center;
+                this.weaponAABB.center.x = this.mAABB.center.x;
             } else {
                 this.entityAtXY(name);
                 eventsManager.action[this.key['attack']] = false;
