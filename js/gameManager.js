@@ -57,7 +57,7 @@ export let gameManager = {
                         gameManager.play();
                     }
                 }
-                code += '<p>' + e.name + " " + e.life + '</p>';
+                code += '<p>' + e.name + " " + e.life +'</p>';
             } catch (ex) {
                 console.log(-1);
             }
@@ -65,6 +65,7 @@ export let gameManager = {
 
         //console.log(code);
         div.innerHTML = code;
+        div.className = 'hp';// данные хп игроков по классу hp
         //div.remove(
         document.body.append(div);
 
@@ -99,6 +100,6 @@ export let gameManager = {
         gameManager.factory['Player1'] = this.player[1];
         gameManager.entities.push(gameManager.factory['Player0']);
         gameManager.entities.push(gameManager.factory['Player1']);
-        this.timeId = setInterval(this.updateWorld, 100);
+        this.timeId = setInterval(this.updateWorld, 70);
     }
 };

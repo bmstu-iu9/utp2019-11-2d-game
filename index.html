@@ -3,7 +3,7 @@
 <head lang="en">
     <title>2d game</title>
     <meta charset="utf-8">
-
+    <link href="bodyStyles.css" rel="stylesheet" type="text/css">
 </head>
 <body>
 
@@ -14,15 +14,16 @@
 <script type="module" src="js/index.js"></script>
 <script>
     let audio = new Audio("music/8-Bit_Universe_-_What_Is_Love.mp3");
-    audio.volume = 0.1
+    audio.volume = 0.02;
+    audio.allow = "autoplay";
     audio.oncanplaythrough = () =>{
-        playPromise = audio.play();
-        if (playPromise !== null){
-            playPromise.catch(() => { audio.play(); })
+        while (audio.play() == null){
+            audio.play().catch(() => { audio.play(); })
         }
 
     }
 
 </script>
+
 </body>
 </html>
