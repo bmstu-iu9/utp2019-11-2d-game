@@ -4,17 +4,29 @@ import {spriteManager} from './spriteManager.js';
 import {mapManager} from './mapManager.js';
 import {eventsManager} from './eventsManager.js';
 import {Player} from './player.js';
-import {ctx} from "./index.js";
+import {ctx, div} from "./index.js";
 
 //менеджер игры
 export let gameManager = {
     factory: {}, //фабрика объектов на карте
     entities: [], //объекты на карте
-    player: null, //указатель на объект игрока
+    player: [], //указатель на объект игрока
     laterKill: [], //отложенное уничтожение объектов
+    timeId: null,
+
     initPlayer() { //инициализация игрока
-        this.player = Object.create(Player);
-        this.player.constructor(50, 60, 10)
+        this.player[0] = Player.createObject(310, 160, 10, {
+            up: "up0",
+            left: "left0",
+            right: "right0",
+            attack: "attack0"
+        }, 'player0', 20, false);
+        this.player[1] = Player.createObject(952, 160, 10,{
+            up: "up1",
+            left: "left1",
+            right: "right1",
+            attack: "attack1"
+        }, 'player1', 20, true);
     },
     kill(obj) {
         this.laterKill.push(obj);
@@ -32,13 +44,29 @@ export let gameManager = {
         //this.player.setMove();
 
         //обновление информации по всем объектам на карте
+        let code = "";
         this.entities.forEach((e) => {
             try{ //защита от ошибок при выполнении update
                 e.update();
+                if (e.life === 0){
+                    clearInterval(this.timeId);
+                    if (confirm("Проиграл: " + e.name)) {
+                        console.log(1);
+                        gameManager.entities.length = 0;
+                        gameManager.initPlayer();
+                        gameManager.play();
+                    }
+                }
+                code += '<p>' + e.name + " " + e.life + '</p>';
             } catch (ex) {
                 console.log(-1);
             }
         });
+
+        //console.log(code);
+        div.innerHTML = code;
+        //div.remove(
+        document.body.append(div);
 
         //удаление всех объектов, попавших в laterKill
         for (let i = 0; i < this.laterKill.length; i++) {
@@ -58,8 +86,6 @@ export let gameManager = {
         mapManager.loadMap("maps/tilemap.json");
         spriteManager.loadAtlas("maps/sprites.json", "maps/spritesheet.png");
         gameManager.initPlayer();
-        gameManager.factory['Player'] = this.player;
-        gameManager.entities.push(gameManager.factory['Player']);
         //mapManager.parseEntities();
         eventsManager.setup();
     },
@@ -69,6 +95,10 @@ export let gameManager = {
     },
 
     play() {
-        setInterval(this.updateWorld, 100);
+        gameManager.factory['Player0'] = this.player[0];
+        gameManager.factory['Player1'] = this.player[1];
+        gameManager.entities.push(gameManager.factory['Player0']);
+        gameManager.entities.push(gameManager.factory['Player1']);
+        this.timeId = setInterval(this.updateWorld, 100);
     }
 };

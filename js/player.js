@@ -8,8 +8,8 @@ import {spriteManager} from './spriteManager.js';
 import {mapManager} from './mapManager.js';
 
 export let Player = {
-    pos_x: 50,
-    pos_y: 60, // позиция игрока
+    //pos_x: 50,
+    //pos_y: 60, // позиция игрока
     size_x: 50,
     size_y: 37, // размеры игрока
     //lifetime = 100; // показатели здоровья
@@ -19,28 +19,39 @@ export let Player = {
     physicManager: null,
     drawManager: null,
 
-    constructor(x, y, speed) {
-        this.physicManager = Object.create(physicManager);
-        this.physicManager.constructor(new Vector2(x, y),
+    createObject(x, y, speed, key, name, life, direction) {
+        let newObj = Object.create(this);
+        newObj.physicManager = physicManager.createObject(new Vector2(x, y),
             speed,
             new AABB(new Vector2(x + this.size_x / 2, y + this.size_y / 2),
-                new Vector2(this.size_x / 2, this.size_y / 2)),
-            new Vector2(this.size_x, this.size_y));
-        this.drawManager = Object.create(drawManager);
-        this.drawManager.state = 'idle';
-        this.drawManager.frame = 0;
-        this.drawManager.frameName = 'adventurer-idle-2-00';
-        this.drawManager.direction = false;
+                new Vector2(this.size_x / 4, this.size_y / 2)),
+            new AABB(new Vector2(x + this.size_x / 2, y + this.size_y / 2),
+                new Vector2(this.size_x / 4, this.size_y / 2)),
+            new Vector2(this.size_x, this.size_y), key, direction);
+
+        newObj.drawManager = Object.create(drawManager);
+        newObj.drawManager.state = 'idle';
+        newObj.drawManager.frame = 0;
+        if (!direction) {
+            newObj.drawManager.frameName = 'adventurer-idle-2-00';
+        } else {
+            newObj.drawManager.frameName = 'adventurer-idle-2-00-mirror';
+        }
+        newObj.drawManager.direction = direction;
+        newObj.life = life;
+        newObj.name = name;
+        return newObj;
     },
 
     draw(ctx) { // прорисовка игрока
         spriteManager.drawSprite(ctx, this.drawManager.getSpriteName(), this.pos_x, this.pos_y);
         spriteManager.drawHitBox(ctx, this.physicManager.mAABB);
+        spriteManager.drawHitBox(ctx, this.physicManager.weaponAABB)
     },
 
     update() { // обновление в цикле
         if (mapManager.loadLayer) {
-            let state = this.physicManager.update();
+            let state = this.physicManager.update(this.name);
             this.drawManager.updateState(state);
         }
         this.pos_x = this.physicManager.mPosition.x;

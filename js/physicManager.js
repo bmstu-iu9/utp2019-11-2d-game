@@ -9,45 +9,57 @@ import {canvas} from "./index.js";
 //менеджер физики объектов
 export let physicManager = {
     rightOfWay: [0, 862, 821, 780, 771, 812, 813, 772, 815, 774, 821, 892, 1026, 1031],
-    move: null, //направление движения
     g: 1, //ускорение свободного падения
-    powerJump: 10, //сила прыжка
+    jumpPower: 10, //сила прыжка
 
-    mOldPosition: null, //положение на предыдущем кадре
-    mPosition: null, //текущее положение
 
-    mOldSpeed: null, //скорость предыдущем кадре
-    mSpeed: null, //текущая скорость
 
-    mScale: null, //масштаб
+    createObject(mPosition, mSpeed, mAABB, weaponAABB, mScale, key, direction) {//конструктор
+        let newObj = Object.create(this);
+        newObj.mOldPosition = null; //положение на предыдущем кадре
+        newObj.mPosition = null; //текущее положение
+        newObj.mOldSpeed = null; //скорость на предыдущем кадре
+        newObj.mSpeed = null; //текущая скорость
+        newObj.direction = null; //направление персонажа: лево-true/право-false
+        newObj.move = null; //направление движения
+        newObj.mScale = null; //масштаб
+        newObj.attack = null; // состояние атаки
 
-    mAABB: null, //хит бокс
-    //mAABBOffset = null; //смещение хит бокса
+        newObj.stun = 0; // таймер запрета на действия
 
-    //стена справа
-    mPushedRightWall: false, //находился ли объект близко к ней последний кадр
-    mPushesRightWall: false, //объект находится ли близко к стене
+        newObj.mAABB = null; //хитбокс
+        newObj.weaponAABB = null; //хитбокс оружия
+        //mAABBOffset = null; //смещение хит бокса
 
-    //стена слева
-    mPushedLeftWall: false, //находился ли объект близко к ней последний кадр
-    mPushesLeftWall: false, //объект находится ли близко к стене
+        //стена справа
+        newObj.mPushedRightWall = false; //находился ли объект близко к ней последний кадр
+        newObj.mPushesRightWall = false; //объект находится ли близко к стене
 
-    //пол
-    mWasOnGround: false, //находился ли объект близко к полу последний кадр
-    mOnGround: false, //объект находится ли близко к полу
+        //стена слева
+        newObj.mPushedLeftWall = false; //находился ли объект близко к ней последний кадр
+        newObj.mPushesLeftWall = false; //объект находится ли близко к стене
 
-    //поталок
-    mWasAtCeiling: false, //находился ли объект близко к потолку последний кадр
-    mAtCeiling: false, //объект находится ли близко к потолку
+        //пол
+        newObj.mWasOnGround = false; //находился ли объект близко к полу последний кадр
+        newObj.mOnGround = false; //объект находится ли близко к полу
 
-    constructor(mPosition, mSpeed, mAABB, mScale) {//конструктор
-        this.mPosition = mPosition;
-        this.mSpeed = new Vector2(mSpeed, 0);
-        this.mAABB = mAABB;
-        this.mScale = mScale
-        this.move = new Vector2(0, 0);
-        this.mOldPosition = new Vector2(0, 0);
-        this.mOldSpeed = new Vector2(0, 0);
+        //потолок
+        newObj.mWasAtCeiling = false; //находился ли объект близко к потолку последний кадр
+        newObj.mAtCeiling = false; //объект находится ли близко к потолку
+
+        newObj.attack = false;
+        newObj.mPosition = mPosition;
+        newObj.mSpeed = new Vector2(mSpeed, 0);
+        newObj.mAABB = mAABB;
+        newObj.weaponAABB = weaponAABB;
+        newObj.mScale = mScale;
+        newObj.move = new Vector2(0, 0);
+        newObj.direction = direction;
+        newObj.mOldPosition = new Vector2(0, 0);
+        newObj.mOldSpeed = new Vector2(0, 0);
+        newObj.key = key;
+        //newObj.name = name;
+        return newObj;
     },
 
     setMove() {
@@ -56,25 +68,25 @@ export let physicManager = {
         this.move.y = 0;
 
         //поймали событие обрабатываем
-        if (eventsManager.action['up']) {
+        if (eventsManager.action[this.key['up']]) {
             this.move.y = 1;
             if (this.mWasOnGround) {
-                this.mSpeed.y = -this.powerJump;
+                this.mSpeed.y = -this.jumpPower;
             }
             //if (this.mWasOnGround) { //подумать
             //this.mOnGround = false;
             //}
         }
-        if (eventsManager.action['left']){
+        if (eventsManager.action[this.key['left']]){
             this.move.x = -1;
         }
-        if (eventsManager.action['right']){
+        if (eventsManager.action[this.key['right']]){
             this.move.x = 1;
         }
     },
 
     //методы
-    update() {//обновление состояния объекта
+    update(name) {//обновление состояния объекта
         //сохраняем предыдущие значения
         this.mOldPosition.copy(this.mPosition);
         this.mOldSpeed.copy(this.mSpeed);
@@ -82,8 +94,11 @@ export let physicManager = {
         this.mPushedLeftWall = this.mPushesLeftWall;
         this.mWasOnGround = this.mOnGround;
         this.mWasAtCeiling = this.mAtCeiling;
+        this.oldMove = this.move;
 
-        this.setMove();
+        if (!this.attack) {
+            this.setMove();
+        }
 
         if (!this.mOnGround) {
             this.move.y = 1;
@@ -91,9 +106,13 @@ export let physicManager = {
         //if (this.move.x === 0 && this.move.y === 0)
         //   return 'stop'; //скорость движения нулевая
 
-        //вычисение новых координат объекта
-        let modX = Math.floor(this.move.x * this.mSpeed.x);
-        let modY = Math.floor(this.move.y * this.mSpeed.y);
+        let modX = 0;
+        let modY = 0;
+        if (!this.attack) {
+            //вычисение новых координат объекта
+            modX = Math.floor(this.move.x * this.mSpeed.x);
+            modY = Math.floor(this.move.y * this.mSpeed.y);
+        }
 
         let center = this.mAABB.center;
         let halfSize = this.mAABB.halfSize;
@@ -139,7 +158,7 @@ export let physicManager = {
                 modY = mapManager.tSize.y - ((this.mAABB.center.y + this.mAABB.halfSize.y) % mapManager.tSize.y);
             else
                 modY = 0;
-            this.mSpeed.y = 0;//-this.powerJump;
+            this.mSpeed.y = 0;//-this.jumpPower;
             this.mOnGround = true;
         } else {
             this.mSpeed.y += this.g;
@@ -186,8 +205,35 @@ export let physicManager = {
 
         this.mAABB.center.x += modX;
         this.mAABB.center.y += modY;
+        this.weaponAABB.center.x += modX;
+        this.weaponAABB.center.y += modY;
 
-        if (modX === 0 && modY === 0){
+        if (modX > 0) {
+            this.direction = false;
+        } else if (modX < 0) {
+            this.direction = true;
+        }
+
+        if ((eventsManager.action[this.key['attack']] || this.attack) && this.mOnGround){
+            this.stun++;
+            if (this.stun === 1) {
+                this.attack = true;
+                if (!this.direction) {
+                    this.weaponAABB.center.x += 15;
+                } else {
+                    this.weaponAABB.center.x -= 15;
+                }
+            }
+            if (this.stun === 5) {
+                this.stun = 0;
+                this.attack = false;
+                this.weaponAABB.center.x = this.mAABB.center.x;
+            } else {
+                this.entityAtXY(name);
+                eventsManager.action[this.key['attack']] = false;
+                return "attack";
+            }
+        } else if (modX === 0 && modY === 0){
             return "idle";
         } else if (modY < 0 && modX > 0){
             return "jumpRight";
@@ -223,18 +269,15 @@ export let physicManager = {
         return false;
     },
 
-    entityAtXY(obj, x, y) {//определение столкновения объекта по заданным координатам
+    entityAtXY(name) {//определение столкновения объекта по заданным координатам
         for (let i = 0; i < gameManager.entities.length; i++) {
             let e = gameManager.entities[i]; //все объекты карты
-            if (e.name !== obj.name) { //имя не совпадает (имена уникальны)
-                if (x + obj.size_x < e.pos_x || //не пересекаются
-                    y + obj.size_y < e.pos_y ||
-                    x > e.pos_x + e.size_x ||
-                    y > e.pos_y + e.size_y)
-                    continue;
-                return e; //найден объект
+            //console.log(e.physicManager.name);
+            if (e.name !== name && this.weaponAABB.overlaps(e.physicManager.mAABB)) {
+                e.life--;
+                //console.log(name);
+                //console.log(e.name, e.life);
             }
         }
-        return null; //объект не найден
     }
 };
