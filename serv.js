@@ -37,6 +37,10 @@ http.createServer(function(request, response){
                     response.writeHead(200, {'Content-Type': 'application/png'});
                     fs.createReadStream(path).pipe(response);
                     break;
+                case  'mp3':
+                    response.writeHead(200, {'Content-Type': 'audio/mpeg'});
+                    fs.createReadStream(path).pipe(response);
+                    break;
             };
         }
     });

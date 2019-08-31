@@ -14,4 +14,3 @@ canvas.height = window.innerHeight;
 gameManager.loadAll();
 gameManager.play();
 
-musicManager.background();

@@ -10,7 +10,8 @@ import {mapManager} from './mapManager.js';
 export let musicManager = {
     background(){
         let vid = document.getElementById("background");
+        vid.src = "music/8-Bit_Universe_-_What_Is_Love.mp3";
         vid.volume = 0.1;
-        vid.onended = vid.play();
+        document.addEventListener("onload", vid.play, false)
     }
 };
