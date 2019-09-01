@@ -9,10 +9,10 @@ export let eventsManager = {
     //методы
     setup() { //настройка клавиш и прявизки
         //настройка привязки к действию
-        this.bind['Space'] = "up0"; //пробел
+        this.bind['KeyW'] = "up0"; //пробел
         this.bind['KeyA'] = "left0"; //a
         this.bind['KeyD'] = "right0"; //d
-        this.bind['Enter'] = "up1";
+        this.bind['ArrowUp'] = "up1";
         this.bind['ArrowLeft'] = "left1";
         this.bind['ArrowRight'] = "right1";
         this.bind['ShiftRight'] = "attack1";
