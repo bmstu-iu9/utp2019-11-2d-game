@@ -51,13 +51,13 @@ export let gameManager = {
                 if (e.life === 0){
                     clearInterval(this.timeId);
                     if (confirm("Проиграл: " + e.name)) {
-                        console.log(1);
+                        //console.log(1);
                         gameManager.entities.length = 0;
                         gameManager.initPlayer();
                         gameManager.play();
                     }
                 }
-                console.log(e.life);
+                //console.log(e.life);
                 progress[e.name].style.width = +(e.life * 30) + 'px';
            } catch (ex) {
                 console.log(-1);

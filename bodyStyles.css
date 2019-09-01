@@ -15,24 +15,43 @@ body{
 
 .bar {
     display: table-cell;
-    position: relative;
+    position: inherit;
     width: 600px;
-    height: 20px;
+    height: 25px;
     background: linear-gradient(to bottom, #000000 0%,#a5a5a5 100%);
     border-radius: 10px;
     overflow: hidden;
     border: 1px solid black;
+    vertical-align: middle;
 }
 
 .bar__progress {
     width: 0%;
     height: 100%;
+    position: inherit;
     background: linear-gradient(to bottom, #53cbf1 0%,#05abe0 43%,#05abe0 50%,#05abe0 50%,#05abe0 58%,#53cbf1 99%);
     box-shadow: 3px 0 5px 0px rgb(48, 48, 48);
-    transition: width 3s 0s ease-in;
+    transition: width 1s 0s ease-in;
 }
 
 .header{
     width: 100%;
-    height: 40px;
+    height: 25px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.prob{
+    width: 80px;
+    height: 100%;
+    display: table-cell;
+}
+
+.text{
+    text-shadow: -1px -1px darkblue,
+    0 1px 0 white;
+    color: blue;
+    transition: all 1s;
+    padding-top: 3px;
+    padding-left: 10px;
 }
