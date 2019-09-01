@@ -14,7 +14,9 @@ body{
 }
 
 .bar {
-    width: 200px;
+    display: table-cell;
+    position: relative;
+    width: 600px;
     height: 20px;
     background: linear-gradient(to bottom, #000000 0%,#a5a5a5 100%);
     border-radius: 10px;
@@ -28,4 +30,9 @@ body{
     background: linear-gradient(to bottom, #53cbf1 0%,#05abe0 43%,#05abe0 50%,#05abe0 50%,#05abe0 58%,#53cbf1 99%);
     box-shadow: 3px 0 5px 0px rgb(48, 48, 48);
     transition: width 3s 0s ease-in;
+}
+
+.header{
+    width: 100%;
+    height: 40px;
 }

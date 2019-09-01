@@ -58,7 +58,7 @@ export let gameManager = {
                     }
                 }
                 console.log(e.life);
-                progress[e.name].style.width = +(e.life * 10) + 'px';
+                progress[e.name].style.width = +(e.life * 30) + 'px';
            } catch (ex) {
                 console.log(-1);
             }
