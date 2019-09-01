@@ -4,7 +4,7 @@ import {spriteManager} from './spriteManager.js';
 import {mapManager} from './mapManager.js';
 import {eventsManager} from './eventsManager.js';
 import {Player} from './player.js';
-import {ctx, div} from "./index.js";
+import {ctx, div, progress} from "./index.js";
 
 //менеджер игры
 export let gameManager = {
@@ -44,9 +44,9 @@ export let gameManager = {
         //this.player.setMove();
 
         //обновление информации по всем объектам на карте
-        let code = "";
+        //let code = "";
         this.entities.forEach((e) => {
-            try{ //защита от ошибок при выполнении update
+           try{ //защита от ошибок при выполнении update
                 e.update();
                 if (e.life === 0){
                     clearInterval(this.timeId);
@@ -57,17 +57,18 @@ export let gameManager = {
                         gameManager.play();
                     }
                 }
-                code += '<p>' + e.name + " " + e.life +'</p>';
-            } catch (ex) {
+                console.log(e.life);
+                progress[e.name].style.width = +(e.life * 10) + 'px';
+           } catch (ex) {
                 console.log(-1);
             }
         });
 
         //console.log(code);
-        div.innerHTML = code;
-        div.className = 'hp';// данные хп игроков по классу hp
+        //div.innerHTML = code;
+        //div.className = 'hp';// данные хп игроков по классу hp
         //div.remove(
-        document.body.append(div);
+        //document.body.append(div);
 
         //удаление всех объектов, попавших в laterKill
         for (let i = 0; i < this.laterKill.length; i++) {
@@ -100,6 +101,6 @@ export let gameManager = {
         gameManager.factory['Player1'] = this.player[1];
         gameManager.entities.push(gameManager.factory['Player0']);
         gameManager.entities.push(gameManager.factory['Player1']);
-        this.timeId = setInterval(this.updateWorld, 70);
+        this.timeId = setInterval(this.updateWorld, 100);
     }
 };
