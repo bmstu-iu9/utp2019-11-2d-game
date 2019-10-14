@@ -23,6 +23,7 @@ body{
     overflow: hidden;
     border: 1px solid black;
     vertical-align: middle;
+    text-align: center;
 }
 
 .bar__progress {
@@ -39,12 +40,12 @@ body{
     height: 25px;
     margin-top: 10px;
     margin-bottom: 10px;
+    display: flex;
 }
 
 .prob{
     width: 80px;
     height: 100%;
-    display: table-cell;
 }
 
 .text{
