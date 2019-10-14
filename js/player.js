@@ -21,13 +21,13 @@ export let Player = {
 
     createObject(x, y, speed, key, name, life, direction) {
         let newObj = Object.create(this);
-        newObj.physicManager = physicManager.createObject(new Vector2(x, y),
+        newObj.physicManager = physicManager.createObject(new Vector2(x, y, 0),
             speed,
-            new AABB(new Vector2(x + this.size_x / 2, y + this.size_y / 2),
-                new Vector2(this.size_x / 4, this.size_y / 2)),
-            new AABB(new Vector2(x + this.size_x / 2, y + this.size_y / 2),
-                new Vector2(this.size_x / 4, this.size_y / 2)),
-            new Vector2(this.size_x, this.size_y), key, direction);
+            new AABB(new Vector2(x + this.size_x / 2, y + this.size_y / 2, 0),
+                new Vector2(this.size_x / 4, this.size_y / 2, 0)),
+            new AABB(new Vector2(x + this.size_x / 2, y + this.size_y / 2, 0),
+                new Vector2(this.size_x / 4, this.size_y / 2, 0)),
+            new Vector2(this.size_x, this.size_y, 0), key, direction);
 
         newObj.drawManager = Object.create(drawManager);
         newObj.drawManager.state = 'idle';
