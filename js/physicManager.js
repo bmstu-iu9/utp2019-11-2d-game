@@ -49,14 +49,14 @@ export let physicManager = {
 
         newObj.attack = false;
         newObj.mPosition = mPosition;
-        newObj.mSpeed = new Vector2(mSpeed, 0);
+        newObj.mSpeed = new Vector2(mSpeed, 0, 0);
         newObj.mAABB = mAABB;
         newObj.weaponAABB = weaponAABB;
         newObj.mScale = mScale;
-        newObj.move = new Vector2(0, 0);
+        newObj.move = new Vector2(0, 0, 0);
         newObj.direction = direction;
-        newObj.mOldPosition = new Vector2(0, 0);
-        newObj.mOldSpeed = new Vector2(0, 0);
+        newObj.mOldPosition = new Vector2(0, 0, 0);
+        newObj.mOldSpeed = new Vector2(0, 0, 0);
         newObj.key = key;
         //newObj.name = name;
         return newObj;
@@ -136,21 +136,6 @@ export let physicManager = {
         let tsDownLeft = mapManager.getTilesetIdx(center.x - halfSize.x + mapManager.tSize.x, down);
         let tsDownRight = mapManager.getTilesetIdx(center.x + halfSize.x - mapManager.tSize.x, down);
         let tsRightDown = mapManager.getTilesetIdx(right, halfSize.y + center.y - mapManager.tSize.y);
-
-        //let e = this.entityAtXY(obj, newX, newY); //объект на пути
-        /*
-        if (e !== null && obj.onTouchEntity) //если есть конфликт (onTouchEnity - функция встречи с другим объектом)
-            obj.onTouchEntity(e); //разбор конфликта внутри объекта
-        if (ts !== 7 && obj.onTouchMap) //есть припятствие (onTou
-            obj.onTouchMap(ts); //разбор конфликта с припятствием внутри объекта
-
-        if (ts === 7 && e === null){ //перемещаем объект на свободное место
-            obj.pos_x = newX;
-            obj.pos_y = newY;
-        } else {
-            return "break"; //дальше двигаться нельзя
-        }
-        */
 
         //console.log(tsDownLeft, tsDownRight);
         if (!this.find(this.rightOfWay, tsDownLeft) || !this.find(this.rightOfWay, tsDownRight)) {
